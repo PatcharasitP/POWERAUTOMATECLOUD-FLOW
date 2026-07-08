@@ -1,0 +1,196 @@
+[1] Q1: POWER BI Against: Nulls included = Yes
+EVALUATE
+VAR Total_ = CALCULATE(COUNTROWS('Site List'), 'Site List'[Status] = "On process")
+VAR OD_ = CALCULATE(COUNTROWS('Site List'), 'Site List'[Status] = "On process", 'Site List'[SLA_Group] = "Overdue")
+VAR TD_ = CALCULATE(COUNTROWS('Site List'), 'Site List'[Status] = "On process", 'Site List'[SLA_Group] = "Today")
+VAR Owners_ = FILTER(
+    ADDCOLUMNS(VALUES('Site List'[Owner]),
+        "n", CALCULATE(COUNTROWS('Site List'), 'Site List'[Status] = "On process"),
+        "nOD", CALCULATE(COUNTROWS('Site List'), 'Site List'[Status] = "On process", 'Site List'[SLA_Group] = "Overdue"),
+        "nTD", CALCULATE(COUNTROWS('Site List'), 'Site List'[Status] = "On process", 'Site List'[SLA_Group] = "Today")),
+    [n] > 0)
+VAR MaxN_ = MAXX(Owners_, [n])
+VAR CatBars_ = CONCATENATEX(Owners_,
+    "<tr><td nowrap style='padding:3px 10px 3px 0;font-size:12.5px;color:#333;white-space:nowrap;font-weight:bold;'>" & SUBSTITUTE(SUBSTITUTE('Site List'[Owner], "&", "&amp;"), " ", "&nbsp;") & "&nbsp;(" & [n] & ")" &
+    "</td><td style='width:100%;padding:3px 0;'><table cellpadding='0' cellspacing='0' width='100%'><tr>" &
+    IF([nOD] > 0,
+        "<td bgcolor='#ED7D31' width='" & FORMAT(ROUND(90 * [nOD] / MaxN_, 0), "0") & "%' align='center' style='font-size:10.5px;line-height:14px;color:#FFFFFF;font-weight:bold;'>" & [nOD] & "</td>",
+        "") &
+    IF([nTD] > 0,
+        "<td bgcolor='#4472C4' width='" & FORMAT(ROUND(90 * [nTD] / MaxN_, 0), "0") & "%' align='center' style='font-size:10.5px;line-height:14px;color:#FFFFFF;font-weight:bold;'>" & [nTD] & "</td>",
+        "") &
+    "<td width='100%'></td></tr></table></td></tr>",
+    "", [n], DESC)
+RETURN ROW(
+    "TotalOnProcess", Total_,
+    "OverdueCount", OD_,
+    "TodayCount", TD_,
+    "OverduePct", FORMAT(ROUND(100 * OD_ / Total_, 0), "0"),
+    "TodayPct", FORMAT(ROUND(100 * TD_ / Total_, 0), "0"),
+    "WithinDate", FORMAT(CALCULATE(MAX('Site List'[Date Call in]), 'Site List'[Status] = "On process", 'Site List'[SLA_Group] = "Today"), "dd/MM/yyyy"),
+    "LastRefresh", FORMAT(MAX('Last Refresh'[DateTimeZoneUTC+7]), "dd/mm/yyyy hh:mm:ss"),
+    "CatBars", CatBars_)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[2] Q2: POWER BI Against: Nulls included = Yes
+EVALUATE
+SELECTCOLUMNS(
+    FILTER('Site List', 'Site List'[Status] = "On process"),
+    "SiteID",       'Site List'[Site ID],
+    "Owner",        'Site List'[Owner],
+    "SLA",          'Site List'[SLA],
+    "AgingSLA",     'Site List'[Aging SLA],
+    "SLAGroup",     'Site List'[SLA_Group],
+    "DateCallIn",   FORMAT('Site List'[Date Call in], "dd/MM/yyyy"),
+    "DateSort",     'Site List'[Date Call in],
+    "Status",       'Site List'[Status],
+    "LandlordName", 'Site List'[Landlord Name],
+    "Region",       'Site List'[GEO],
+    "Cause",        'Site List'[Question],
+    "Remark",       'Site List'[Cause]
+)
+ORDER BY [AgingSLA] DESC, [DateSort] ASC, [SiteID] ASC
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3] Initialize variable RowNo
+Name: RowNo
+Type: Integer
+Value: 0
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[4] Initialize variable HTMLRows
+Name: HTMLRows
+Type: String
+Value:
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[5] Filter array Overdue
+From: body('Q2')?['firstTableRows']
+item()?['[SLAGroup]'] is equal to Overdue
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[6] Filter array Today
+From: body('Q2')?['firstTableRows']
+item()?['[SLAGroup]'] is equal to Today
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[7] Apply to each Overdue
+Select an output from previous steps: body('Filter_array_Overdue')
+Increment variable: Name: RowNo: Value: 1
+Append to string variable: Name: HTMLRows: Value:
+<tr><td style="border:1px solid #BFBFBF;padding:6px 8px;text-align:center;">@{variables('RowNo')}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;white-space:nowrap;">@{items('Apply_to_each_Overdue')?['[SiteID]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Overdue')?['[Owner]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;white-space:nowrap;@{if(equals(item()?['[SLA]'], '0 Day'), '', 'color:#D32F2F;font-weight:bold;')}">@{items('Apply_to_each_Overdue')?['[SLA]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;white-space:nowrap;">@{items('Apply_to_each_Overdue')?['[DateCallIn]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Overdue')?['[Status]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Overdue')?['[LandlordName]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;text-align:center;">@{items('Apply_to_each_Overdue')?['[Region]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Overdue')?['[Cause]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Overdue')?['[Remark]']}</td></tr>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[8] Apply to each Today
+Select an output from previous steps: body('Filter_array_Today')
+Increment variable 2: Name: RowNo: Value: 1
+Append to string variable 2: Name: HTMLRows: Value:
+<tr><td style="border:1px solid #BFBFBF;padding:6px 8px;text-align:center;">@{variables('RowNo')}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;white-space:nowrap;">@{items('Apply_to_each_Today')?['[SiteID]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Today')?['[Owner]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;white-space:nowrap;@{if(equals(item()?['[SLA]'], '0 Day'), '', 'color:#D32F2F;font-weight:bold;')}">@{items('Apply_to_each_Today')?['[SLA]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;white-space:nowrap;">@{items('Apply_to_each_Today')?['[DateCallIn]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Today')?['[Status]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Today')?['[LandlordName]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;text-align:center;">@{items('Apply_to_each_Today')?['[Region]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Today')?['[Cause]']}</td><td style="border:1px solid #BFBFBF;padding:6px 8px;">@{items('Apply_to_each_Today')?['[Remark]']}</td></tr>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[9] Compose EmailBody
+Inputs:
+<div style="font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;">
+
+  <p style="margin:0 0 14px 0;">เรียน ทุกทีมและทุกท่านที่เกี่ยวข้อง ครับ</p>
+
+  <p style="margin:0 0 10px 0;">
+    เนื่องจากมี Complaint ผ่านช่องทาง Call Center ที่เป็น On process จำนวน
+    <span style="color:#D32F2F;font-weight:bold;">@{first(body('Q1')?['firstTableRows'])?['[TotalOnProcess]']} Case</span>
+  </p>
+
+  <ul style="margin:0 0 14px 0;padding-left:22px;">
+    <li style="margin-bottom:6px;">
+      Over Due 24 Hour จำนวน
+      <span style="color:#D32F2F;font-weight:bold;">@{first(body('Q1')?['firstTableRows'])?['[OverdueCount]']} Case</span>
+      รบกวนปิดภายในพรุ่งนี้
+      <b>@{formatDateTime(addDays(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),1),'dd/MM/yyyy')}</b> ก่อน 10.00 น.
+    </li>
+    <li>
+      Within <b>@{first(body('Q1')?['firstTableRows'])?['[WithinDate]']}</b> จำนวน
+      <span style="color:#D32F2F;font-weight:bold;">@{first(body('Q1')?['firstTableRows'])?['[TodayCount]']} Case</span>
+      รบกวนปิดภายใน 24 ชม.
+    </li>
+  </ul>
+
+  <p style="margin:0 0 14px 0;">
+    รบกวนตรวจสอบเพื่อให้ทาง LL ได้รับการตอบกลับที่เร็วที่สุด
+    หากมีการติดต่อแล้ว รบกวนปิด Case ที่ไฟล์ตามลิ้งด้านล่าง
+  </p>
+
+  <p style="margin:0 0 6px 0;">
+    <a href="#" style="color:#1A73E8;font-weight:bold;">Log Call Center</a>
+  </p>
+  <p style="margin:0 0 18px 0;">
+    สามารถตรวจสอบรายละเอียดเพิ่มเติมได้ที่
+    <a href="https://app.powerbi.com/groups/me/reports/cba13b29-b840-4998-b1e8-8d23f8c05c78" style="color:#1A73E8;font-weight:bold;">Call Center Dashboard</a>
+  </p>
+
+  <!-- ═══════ SUMMARY CARD (HTML ล้วน — dynamic จาก Q1, ไม่ใช่รูปภาพ ไม่มีทางโดน block) ═══════ -->
+  <table cellpadding="0" cellspacing="0" width="100%" style="max-width:660px;border:1px solid #E0E0E0;border-radius:8px;background-color:#FAFAFA;margin:0 0 20px 0;">
+    <tr><td style="padding:16px 18px;">
+      <p style="margin:0 0 12px 0;font-size:12.5px;font-weight:bold;color:#666666;letter-spacing:.5px;">
+        COMPLAINTS ON PROCESS &mdash; ข้อมูล ณ @{first(body('Q1')?['firstTableRows'])?['[LastRefresh]']} น.
+      </p>
+      <table cellpadding="0" cellspacing="0" width="100%">
+        <tr>
+          <td width="32%" align="center" style="padding:12px 4px;background-color:#FDECEA;border-radius:6px;">
+            <div style="font-size:32px;font-weight:bold;color:#D32F2F;line-height:1.1;">@{first(body('Q1')?['firstTableRows'])?['[TotalOnProcess]']}</div>
+            <div style="font-size:11.5px;color:#B71C1C;font-weight:bold;">ON PROCESS รวม</div>
+          </td>
+          <td width="2%"></td>
+          <td width="32%" align="center" style="padding:12px 4px;background-color:#FDF0E5;border-radius:6px;">
+            <div style="font-size:32px;font-weight:bold;color:#ED7D31;line-height:1.1;">@{first(body('Q1')?['firstTableRows'])?['[OverdueCount]']}</div>
+            <div style="font-size:11.5px;color:#C55A11;font-weight:bold;">OVER DUE 24 HOUR</div>
+          </td>
+          <td width="2%"></td>
+          <td width="32%" align="center" style="padding:12px 4px;background-color:#EBF1FA;border-radius:6px;">
+            <div style="font-size:32px;font-weight:bold;color:#4472C4;line-height:1.1;">@{first(body('Q1')?['firstTableRows'])?['[TodayCount]']}</div>
+            <div style="font-size:11.5px;color:#2F5597;font-weight:bold;">WITHIN @{first(body('Q1')?['firstTableRows'])?['[WithinDate]']}</div>
+          </td>
+        </tr>
+      </table>
+      <table cellpadding="0" cellspacing="0" width="100%" style="margin:14px 0 5px 0;">
+        <tr>
+          <td bgcolor="#ED7D31" width="@{first(body('Q1')?['firstTableRows'])?['[OverduePct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td>
+          <td bgcolor="#4472C4" width="@{first(body('Q1')?['firstTableRows'])?['[TodayPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td>
+        </tr>
+      </table>
+      <p style="margin:0 0 14px 0;font-size:11.5px;color:#777777;">
+        <span style="color:#ED7D31;">&#9632;</span> Over Due @{first(body('Q1')?['firstTableRows'])?['[OverduePct]']}%
+        &nbsp;&nbsp;<span style="color:#4472C4;">&#9632;</span> Within @{first(body('Q1')?['firstTableRows'])?['[TodayPct]']}%
+      </p>
+      <p style="margin:0 0 7px 0;font-size:12.5px;font-weight:bold;color:#333333;">ค้างราย Owner (On process)</p>
+      <table cellpadding="0" cellspacing="0" width="100%">@{first(body('Q1')?['firstTableRows'])?['[CatBars]']}</table>
+    </td></tr>
+  </table>
+  <!-- ═══════ /SUMMARY CARD ═══════ -->
+  <!-- ที่ TRUE: เพิ่ม action Export To File (PDF, เลือกหน้าได้) + แนบไฟล์ในเมล — ดู MIGRATION_TRUE.md -->
+
+  <table cellspacing="0" cellpadding="0" style="border-collapse:collapse;font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:12.5px;width:100%;max-width:1180px;">
+    <thead>
+      <tr style="background-color:#D9D9D9;">
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;white-space:nowrap;">No</th>
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;white-space:nowrap;">Site ID</th>
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;white-space:nowrap;">Owner</th>
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;white-space:nowrap;">SLA</th>
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;white-space:nowrap;">Date Call in</th>
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;white-space:nowrap;">Status</th>
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;">Landlord Name</th>
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;white-space:nowrap;">Region</th>
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;">Cause</th>
+        <th style="border:1px solid #A6A6A6;padding:7px 8px;text-align:center;">Remark</th>
+      </tr>
+    </thead>
+    <tbody>
+      @{variables('HTMLRows')}
+    </tbody>
+  </table>
+
+  <p style="margin:16px 0 4px 0;color:#888888;font-size:12px;">
+    ข้อมูล ณ @{first(body('Q1')?['firstTableRows'])?['[LastRefresh]']} น. (Power BI: Call Center Dashboard)
+  </p>
+
+  <p style="margin:14px 0 0 0;">
+    <b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ
+  </p>
+
+</div>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[10] Send an email (V2)
+To:
+Subject: Complaint Call Center On process @{first(body('Q1')?['firstTableRows'])?['[TotalOnProcess]']} Case — @{formatDateTime(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),'dd/MM/yyyy')}
+Body: outputs('Compose_EmailBody')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

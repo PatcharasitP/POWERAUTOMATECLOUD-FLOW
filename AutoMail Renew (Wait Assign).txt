@@ -1,0 +1,159 @@
+[1] Compose CFG FILTER
+Inputs: 
+'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE] = "0 Waiting for Task Assignment" && 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE] >= DATE(2025,1,1) && 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE] <= DATE(2026,12,31)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[2] Compose CFG COLUMNS
+Inputs:
+"TASK_ID", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID], "PROCESS_TYPE", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[PROCESS_TYPE],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "SUB_PROCESS_TYPE", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[SUB_PROCESS_TYPE],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "TASK_NO", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "TASK_STATUS", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "PC_STATUS", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "STEP_V3_Y26", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "GROUP", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "SUB_STAGE", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "LOCATION_ID", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "REGION", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[GEO_REGION],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "OLD_CONTRACT_CODE_LIST", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "NEW_CONTRACT_CODE", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(IF(ISBLANK('RENEW CONTRACT TASK [NEW LOCATION]'[CONTRACT_CODE]),"-",'RENEW CONTRACT TASK [NEW LOCATION]'[CONTRACT_CODE]),"&","&amp;"),"<","&lt;"),">","&gt;"), "CONTRACT_START_DATE", COALESCE(FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "dd/MM/yyyy"),""), "CONTRACT_END_DATE", COALESCE(FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "dd/MM/yyyy"),""), "RESPONSIBLE", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[RESPONSIBLE],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "SUBCONTRACTOR", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "TEAM", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(IF(ISBLANK('RENEW CONTRACT TASK [NEW LOCATION]'[Sub_New]),"No Assign",'RENEW CONTRACT TASK [NEW LOCATION]'[Sub_New]),"&","&amp;"),"<","&lt;"),">","&gt;"), "LOC_TYPE", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "SITE_TYPE_GROUP", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "HOST_NAME", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[HOST_NAME],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "LANDLOAD_NAME", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[LANDLOAD_NAME],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "LANDLOAD_TYPE", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[LANDLOAD_TYPE],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "CONTRACT_NAME", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[CONTRACT_NAME],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "REASON", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[REASON],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "REMARK", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[REMARK],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "MENTOR", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[MENTOR],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "BFKT", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "MODIFY_DATE", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_DATE],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "MODIFY_USER", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_USER],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "UPDATED_DATE", COALESCE(FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[UPDATED_DATE], "dd/MM/yyyy"),""), "OLD_COMPANY_NAME", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],""),"&","&amp;"),"<","&lt;"),">","&gt;"), "NEW_COMPANY_NAME", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(IF(ISBLANK('RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME]),"-",'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME]),"&","&amp;"),"<","&lt;"),">","&gt;"), "Risk", SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(COALESCE('RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis],""),"&","&amp;"),"<","&lt;"),">","&gt;")
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3] Compose CFG EMAIL HEADER
+<div style="font-size:20px;font-weight:bold;color:#222222;">RENEWAL Export On Process: Stage: 0 Wait Assign</div>
+<div style="font-size:14px;color:#444444;margin-top:6px;">Sub Stage: 0 Waiting for Task Assignment</div>
+<div style="font-size:13px;color:#444444;margin-top:2px;">โดยสัญญาจะหมดอายุในช่วงปี 2025–2026 ที่ยังไม่ถูกมอบหมายงาน</div>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[4] Run Q SUMMARY: Power BI Against: Nulls included = Yes
+EVALUATE
+VAR FilteredData_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', @{outputs('Compose_CFG_FILTER')})
+VAR LastUpdated_ = FORMAT(MAXX(FilteredData_, 'RENEW CONTRACT TASK [NEW LOCATION]'[UPDATED_DATE]), "dd/MM/yyyy")
+VAR WithTeam_ = ADDCOLUMNS(FilteredData_, "TEAM", IF(ISBLANK('RENEW CONTRACT TASK [NEW LOCATION]'[Sub_New]), "No Assign", 'RENEW CONTRACT TASK [NEW LOCATION]'[Sub_New]))
+VAR ByTeam_ = ADDCOLUMNS(SUMMARIZE(WithTeam_, [TEAM]), "TeamCount", VAR CurTeam = [TEAM] RETURN COUNTROWS(FILTER(WithTeam_, [TEAM] = CurTeam)))
+VAR ByTeamFinal_ = ADDCOLUMNS(ByTeam_, "LastUpdated", LastUpdated_, "SortKey", 1)
+VAR GrandTotal_ = ROW("TEAM", "TOTAL", "TeamCount", COUNTROWS(WithTeam_), "LastUpdated", LastUpdated_, "SortKey", 2)
+RETURN
+    UNION(ByTeamFinal_, GrandTotal_)
+ORDER BY [SortKey], [TEAM]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[5] Run Q DETAIL: Power BI Against: Nulls included = Yes
+EVALUATE
+VAR FilteredData_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', @{outputs('Compose_CFG_FILTER')})
+VAR DetailRows_ =
+    SELECTCOLUMNS(
+        FilteredData_,
+        @{outputs('Compose_CFG_COLUMNS')}
+    )
+RETURN
+    DetailRows_
+ORDER BY [TEAM], [LOCATION_ID]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[6] Select TeamPerRow
+From: body('Run_Q_DETAIL')?['firstTableRows']
+Map: item()?['[TEAM]']
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[7] Compose DistinctTeams
+Inputs: union(body('Select_TeamPerRow'), body('Select_TeamPerRow'))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[8] Filter NonTotal Teams
+From: body('Run_Q_SUMMARY')?['firstTableRows']
+item()?['[TEAM]'] is not equal to TOTAL
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[9] Select TeamCountsRaw
+From: body('Filter_NonTotal_Teams')
+Map: item()?['[TeamCount]']
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[10] Compose MaxTeamCount
+Inputs: if(equals(length(body('Select_TeamCountsRaw')), 0), 1, max(body('Select_TeamCountsRaw')))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[11] Initialize variable TeamSheets
+Name: TeamSheets
+Type: Array
+Value: []
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[12] Initialize variable TeamBarRows
+Name: TeamBarRows
+Type: Array
+Value: []
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[13] Apply to each Team
+Select an output from previous steps: outputs('Compose_DistinctTeams')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(1) Filter Team Rows
+From: body('Run_Q_DETAIL')?['firstTableRows']
+item()?['[TEAM]'] is equal to items('Apply_to_each_Team')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2) Select Team RowXML
+From: body('Filter_Team_Rows')
+Map:
+@concat('<Row>', '<Cell><Data ss:Type="Number">', string(item()?['[TASK_ID]']), '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[PROCESS_TYPE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[SUB_PROCESS_TYPE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[TASK_NO]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[TASK_STATUS]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[PC_STATUS]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[STEP_V3_Y26]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[GROUP]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[SUB_STAGE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[LOCATION_ID]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[REGION]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[OLD_CONTRACT_CODE_LIST]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[NEW_CONTRACT_CODE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[CONTRACT_START_DATE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[CONTRACT_END_DATE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[RESPONSIBLE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[SUBCONTRACTOR]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[TEAM]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[LOC_TYPE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[SITE_TYPE_GROUP]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[HOST_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[LANDLOAD_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[LANDLOAD_TYPE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[CONTRACT_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[REASON]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[REMARK]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[MENTOR]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[BFKT]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[MODIFY_DATE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[MODIFY_USER]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[UPDATED_DATE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[OLD_COMPANY_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[NEW_COMPANY_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[Risk]'], '</Data></Cell>', '</Row>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(3) Compose TeamSheetXML
+Inputs:
+<Worksheet ss:Name="@{items('Apply_to_each_Team')}"><Table><Row><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">TASK_ID</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">PROCESS_TYPE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SUB_PROCESS_TYPE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">TASK_NO</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">TASK_STATUS</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">PC_STATUS</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">STEP_V3_Y26</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">GROUP</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SUB_STAGE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">LOCATION_ID</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">REGION</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">OLD_CONTRACT_CODE_LIST</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">NEW_CONTRACT_CODE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">CONTRACT_START_DATE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">CONTRACT_END_DATE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">RESPONSIBLE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SUBCONTRACTOR</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">TEAM</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">LOC_TYPE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SITE_TYPE_GROUP</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">HOST_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">LANDLOAD_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">LANDLOAD_TYPE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">CONTRACT_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">REASON</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">REMARK</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">MENTOR</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">BFKT</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">MODIFY_DATE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">MODIFY_USER</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">UPDATED_DATE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">OLD_COMPANY_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">NEW_COMPANY_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Risk</Data></Cell></Row>@{join(body('Select_Team_RowXML'), '')}</Table></Worksheet>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(4) Append TeamSheets
+Name: TeamSheets
+Value: outputs('Compose_TeamSheetXML')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(5) Compose TeamBarWidthPct
+Inputs: div(add(mul(length(body('Filter_Team_Rows')), 100), div(outputs('Compose_MaxTeamCount'), 2)), outputs('Compose_MaxTeamCount'))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(6) Compose TeamBarRow
+Inputs:
+<tr><td nowrap style="padding:5px 10px 5px 0;font-size:12.5px;color:#222222;">@{replace(items('Apply_to_each_Team'), ' ', '&nbsp;')}</td><td style="padding:5px 8px;"><table cellpadding="0" cellspacing="0" width="300" style="background-color:#EFEFEF;"><tr><td><table cellpadding="0" cellspacing="0" width="@{string(outputs('Compose_TeamBarWidthPct'))}%" style="background-color:#595959;"><tr><td style="font-size:1px;line-height:14px;">&nbsp;</td></tr></table></td></tr></table></td><td style="padding:5px 0 5px 10px;font-size:12.5px;color:#222222;font-weight:bold;">@{string(length(body('Filter_Team_Rows')))}</td></tr>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(7) Append TeamBarRows
+Name: TeamBarRows
+Value: outputs('Compose_TeamBarRow')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[14] Select AllRowXML
+From: body('Run_Q_DETAIL')?['firstTableRows']
+Map:
+@concat('<Row>', '<Cell><Data ss:Type="Number">', string(item()?['[TASK_ID]']), '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[PROCESS_TYPE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[SUB_PROCESS_TYPE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[TASK_NO]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[TASK_STATUS]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[PC_STATUS]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[STEP_V3_Y26]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[GROUP]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[SUB_STAGE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[LOCATION_ID]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[REGION]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[OLD_CONTRACT_CODE_LIST]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[NEW_CONTRACT_CODE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[CONTRACT_START_DATE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[CONTRACT_END_DATE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[RESPONSIBLE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[SUBCONTRACTOR]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[TEAM]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[LOC_TYPE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[SITE_TYPE_GROUP]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[HOST_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[LANDLOAD_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[LANDLOAD_TYPE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[CONTRACT_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[REASON]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[REMARK]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[MENTOR]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[BFKT]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[MODIFY_DATE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[MODIFY_USER]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[UPDATED_DATE]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[OLD_COMPANY_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[NEW_COMPANY_NAME]'], '</Data></Cell>', '<Cell><Data ss:Type="String">', item()?['[Risk]'], '</Data></Cell>', '</Row>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[15] Compose AllSheetXML
+Inputs:
+<Worksheet ss:Name="ALL"><Table><Row><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">TASK_ID</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">PROCESS_TYPE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SUB_PROCESS_TYPE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">TASK_NO</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">TASK_STATUS</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">PC_STATUS</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">STEP_V3_Y26</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">GROUP</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SUB_STAGE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">LOCATION_ID</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">REGION</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">OLD_CONTRACT_CODE_LIST</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">NEW_CONTRACT_CODE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">CONTRACT_START_DATE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">CONTRACT_END_DATE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">RESPONSIBLE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SUBCONTRACTOR</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">TEAM</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">LOC_TYPE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">SITE_TYPE_GROUP</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">HOST_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">LANDLOAD_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">LANDLOAD_TYPE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">CONTRACT_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">REASON</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">REMARK</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">MENTOR</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">BFKT</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">MODIFY_DATE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">MODIFY_USER</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">UPDATED_DATE</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">OLD_COMPANY_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">NEW_COMPANY_NAME</Data></Cell><Cell ss:StyleID="HeaderStyle"><Data ss:Type="String">Risk</Data></Cell></Row>@{join(body('Select_AllRowXML'), '')}</Table></Worksheet>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[16] Compose WorkbookXML
+Inputs:
+<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles><Style ss:ID="HeaderStyle"><Font ss:Color="#000000" ss:Bold="1"/><Interior ss:Color="#D9D9D9" ss:Pattern="Solid"/></Style></Styles>@{outputs('Compose_AllSheetXML')}@{join(variables('TeamSheets'), '')}</Workbook>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[17] Compose WorkbookBase64
+Inputs: base64(concat(decodeUriComponent('%EF%BB%BF'), outputs('Compose_WorkbookXML')))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[18] Initialize variable Timestamp
+Name: Timestamp
+Type: String
+Value: formatDateTime(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),'yyyyMMdd_HHmm')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[19] Select DetailRowsHTML Email
+From: if(lessOrEquals(length(body('Run_Q_DETAIL')?['firstTableRows']), 200), body('Run_Q_DETAIL')?['firstTableRows'], take(body('Run_Q_DETAIL')?['firstTableRows'], 50))
+Map:
+@concat('<tr>', '<td style="border:1px solid #EEE;padding:5px 8px;">', string(item()?['[TASK_ID]']), '</td>', '<td style="border:1px solid #EEE;padding:5px 8px;">', item()?['[LOCATION_ID]'], '</td>', '<td style="border:1px solid #EEE;padding:5px 8px;">', item()?['[REGION]'], '</td>', '<td style="border:1px solid #EEE;padding:5px 8px;">', item()?['[Risk]'], '</td>', '<td style="border:1px solid #EEE;padding:5px 8px;">', item()?['[CONTRACT_END_DATE]'], '</td>', '<td style="border:1px solid #EEE;padding:5px 8px;">', item()?['[OLD_COMPANY_NAME]'], '</td>', '</tr>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[20] Compose EmailDetailTable
+Inputs:
+if(lessOrEquals(length(body('Run_Q_DETAIL')?['firstTableRows']), 200), join(body('Select_DetailRowsHTML_Email'), ''), concat(join(body('Select_DetailRowsHTML_Email'), ''), '<tr><td colspan="6" style="text-align:center;color:#888888;padding:10px;">แสดง 50 แถวแรก จากทั้งหมด ', string(length(body('Run_Q_DETAIL')?['firstTableRows'])), ' แถว — ดูทั้งหมดในไฟล์แนบ</td></tr>'))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[21] Compose EmailBody
+Inputs
+<div style="font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;max-width:760px;margin:0 auto;background-color:#ffffff;">
+  @{outputs('Compose_CFG_EMAIL_HEADER')}
+  <p style="margin:10px 0 18px 0;font-size:12px;color:#888888;">
+    ข้อมูล ณ @{first(body('Run_Q_SUMMARY')?['firstTableRows'])?['[LastUpdated]']}
+  </p>
+  <div style="margin:0 0 22px 0;">
+    <div style="font-size:40px;font-weight:bold;color:#222222;line-height:1.1;">@{last(body('Run_Q_SUMMARY')?['firstTableRows'])?['[TeamCount]']}</div>
+    <div style="font-size:12px;color:#888888;">TOTAL Waiting for Task Assignment</div>
+  </div>
+  <p style="margin:0 0 8px 0;font-size:12.5px;font-weight:bold;color:#333333;">จำนวนต่อทีม (Sub_New)</p>
+  <table cellpadding="0" cellspacing="0" style="margin:0 0 22px 0;">
+    @{join(variables('TeamBarRows'), '')}
+  </table>
+  <p style="margin:0 0 6px 0;font-size:12.5px;font-weight:bold;color:#333333;">รายละเอียด (@{length(body('Run_Q_DETAIL')?['firstTableRows'])} แถว — คอลัมน์เต็ม 34 คอลัมน์อยู่ในไฟล์แนบ)</p>
+  <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;font-size:12px;margin:0 0 14px 0;">
+    <tr><th style="background:#D9D9D9;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;">TASK_ID</th><th style="background:#D9D9D9;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;">LOCATION_ID</th><th style="background:#D9D9D9;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;">REGION</th><th style="background:#D9D9D9;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;">Risk</th><th style="background:#D9D9D9;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;">CONTRACT_END_DATE</th><th style="background:#D9D9D9;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;">OLD_COMPANY_NAME</th></tr>
+    @{outputs('Compose_EmailDetailTable')}
+  </table>
+  <p style="margin:14px 0 0 0;font-size:12px;color:#888888;">
+    <b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ
+  </p>
+</div>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[22] Send an email (V2)
+To:
+Subject: RENEWAL Export — 0 Waiting for Task Assignment | สัญญาหมด 2025-2026
+Body: outputs('Compose_EmailBody')
+Attachments Name - 1: concat('RENEWAL_0Wait_', variables('Timestamp'), '.xls')
+Attachments Content - 1: outputs('Compose_WorkbookBase64')
+Importance: Normal
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

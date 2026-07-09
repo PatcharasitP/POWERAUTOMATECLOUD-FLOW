@@ -1,0 +1,129 @@
+// FillRenewal0Wait.osts.ts
+// Office Script สำหรับ flow "RENEWAL Export — 0 Wait Assign (SIMPLE)"
+// วิธีติดตั้ง: ดู "วิธีติดตั้ง_script.md" ในโฟลเดอร์เดียวกันนี้
+//
+// รับ rowsJson (string) = JSON array ของ object 1 แถวต่อ 1 location/task
+// (มาจาก Power BI query โดยตรง ไม่มี escape ใด ๆ ติดมาด้วย) แล้ว:
+//   1. เคลียร์ชีท "ALL" ทั้งหมด (ลบตาราง Excel เดิมก่อน กันตารางค้าง)
+//   2. เขียน header จาก "keys ของ object แถวแรก" -- ถ้าเพิ่ม/ลดคอลัมน์ใน DAX
+//      (action แรกของ flow) ไฟล์แนบจะตามอัตโนมัติ ไม่ต้องแก้ script นี้เลย
+//   3. เขียนข้อมูลทุกแถว
+//   4. สร้าง Excel Table ครอบข้อมูลทั้งหมด
+//   5. จัดฟอร์แมต: header เทา #D9D9D9 ตัวดำตัวหนา + freeze แถว 1 + autofit
+//      คอลัมน์ (สิ่งที่ Plan B ก่อนหน้านี้ทำไม่ได้เลย เพราะ Excel Online
+//      Business connector ไม่มี action format/freeze ใด ๆ)
+//   6. ถ้า rowsJson ว่างเปล่า/parse ไม่ได้แถวเลย -- เคลียร์ชีท + เขียน
+//      ข้อความแจ้งเฉย ๆ ไม่ throw error (กัน flow ทั้งเส้นล้มเพราะไม่มีข้อมูล)
+//
+// v3 (2026-07-09): ตัดสีฟ้า banded ออกจาก body ทั้งหมด (setPredefinedTableStyle
+// "TableStyleLight1" + setShowBandedRows/Columns(false)) -- เหลือสีแค่ header
+// เทา #D9D9D9 ตัวดำหนา, body ขาวล้วน. v2 แก้ header วงเล็บ [] + ตัด META_* ออก
+// จากไฟล์แนบแล้ว (คงไว้เหมือนเดิมใน v3 นี้).
+
+function main(workbook: ExcelScript.Workbook, rowsJson: string) {
+  const SHEET_NAME = "ALL";
+  const HEADER_FILL = "#D9D9D9";
+  const HEADER_FONT = "#000000";
+  // คีย์สงวน (metadata) ที่มากับ JSON แต่ไม่ใช่คอลัมน์ข้อมูลจริง -- ไม่ให้
+  // โผล่เป็นคอลัมน์ในไฟล์แนบ. ใช้แค่ในเนื้อเมล ไม่ใช่ในตาราง .xlsx -- ถ้าเพิ่ม
+  // metadata field ใหม่ในอนาคต เติมชื่อที่นี่ด้วย.
+  const META_KEYS = ["META_TOTAL_LOCATIONS", "META_LAST_UPDATED"];
+
+  // 1) หาหรือสร้างชีท "ALL"
+  let sheet = workbook.getWorksheet(SHEET_NAME);
+  if (!sheet) {
+    sheet = workbook.addWorksheet(SHEET_NAME);
+  }
+
+  // ลบตาราง Excel เดิมทั้งหมดก่อน (กัน error "ตารางซ้อนทับ" ตอนสร้างใหม่)
+  const existingTables = sheet.getTables();
+  for (const t of existingTables) {
+    t.delete();
+  }
+
+  // เคลียร์เนื้อหาเดิมทั้งชีท
+  const usedRange = sheet.getUsedRange();
+  if (usedRange) {
+    usedRange.clear(ExcelScript.ClearApplyTo.contents);
+  }
+
+  // 2) parse JSON -- ถ้าพังหรือว่างเปล่า ไม่ throw ปล่อยให้ rows = []
+  let rows: { [key: string]: string | number }[] = [];
+  try {
+    const parsed = JSON.parse(rowsJson);
+    if (Array.isArray(parsed)) {
+      rows = parsed;
+    }
+  } catch (e) {
+    rows = [];
+  }
+
+  if (rows.length === 0) {
+    sheet.getRange("A1").setValue("ไม่มีข้อมูล (0 แถว)");
+    return;
+  }
+
+  // bugfix (real test, live -- 2026-07-09): Power BI's own JSON output names
+  // every key with SURROUNDING SQUARE BRACKETS (e.g. "[TASK_ID]", not
+  // "TASK_ID" -- this is how the ExecuteDatasetQuery/DAX SELECTCOLUMNS output
+  // has looked in every single response this whole project, but this script
+  // naively used Object.keys() as-is the first time, so (a) the .xlsx header
+  // row literally showed "[TASK_ID]" with brackets, and (b) the META_KEYS
+  // exclusion filter never matched anything (comparing "[META_TOTAL_LOCATIONS]"
+  // against the bare "META_TOTAL_LOCATIONS" string never succeeds), so both
+  // meta fields leaked in as 2 extra real columns (36 instead of 34). Fixed
+  // by keeping the ORIGINAL bracketed key (to actually index into each row
+  // object) paired with a STRIPPED display name (written to the sheet).
+  const stripBrackets = (k: string): string => k.replace(/^\[/, "").replace(/\]$/, "");
+  const rawKeys = Object.keys(rows[0]);
+  const dataKeys = rawKeys.filter((k) => !META_KEYS.includes(stripBrackets(k)));
+  const headers = dataKeys.map(stripBrackets);
+  const numCols = headers.length;
+  const numRows = rows.length;
+
+  // 3) เขียน header + ข้อมูล
+  const headerRange = sheet.getRangeByIndexes(0, 0, 1, numCols);
+  headerRange.setValues([headers]);
+
+  const dataValues: (string | number)[][] = rows.map((r) =>
+    dataKeys.map((k) => {
+      const v = r[k];
+      return v === undefined || v === null ? "" : v;
+    })
+  );
+  const dataRange = sheet.getRangeByIndexes(1, 0, numRows, numCols);
+  dataRange.setValues(dataValues);
+
+  // 4) สร้าง Excel Table ครอบ header+data ทั้งหมด
+  const fullRange = sheet.getRangeByIndexes(0, 0, numRows + 1, numCols);
+  const table = sheet.addTable(fullRange, true);
+  table.setName("ALL_Table");
+
+  // bugfix v3 (pond, live -- เปิดไฟล์ LIVE จริงแล้วเห็น body ทั้งตารางโดนสีฟ้า
+  // banded สลับแถว): sheet.addTable() ใช้ Excel's own DEFAULT predefined table
+  // style เสมอ (เช่น "TableStyleMedium2" ซึ่งมี banded-row สีฟ้าอ่อนสลับแถว
+  // ในตัว) -- โค้ด v1/v2 ไม่เคยตั้ง style ตรง ๆ เลย มีแค่ override สีของ
+  // "header row" เท่านั้น (getHeaderRowRange()...) ซึ่งไม่แตะ "data rows" อยู่
+  // แล้ว สีฟ้าที่เห็นจึงมาจาก data rows ที่ยังใช้ style เริ่มต้นของตารางอยู่.
+  // แก้ด้วย 2 ชั้น (ยืนยัน method จริงจาก Microsoft Learn ก่อนใช้ ไม่เดา):
+  //   1) setPredefinedTableStyle("TableStyleLight1") -- style ที่อ่อนสุด/ไม่มี
+  //      สีพื้น body เลย (ชุด "Light" ทั้งหมดไม่มี banding โดย default)
+  //   2) setShowBandedRows(false) -- ปิด banded-row formatting ตรง ๆ อีกชั้น
+  //      กันเผื่อ style ไหนมี default เป็น true (ประกันสองชั้น ไม่ใช่ซ้ำซ้อนไร้ประโยชน์)
+  // ผลลัพธ์ที่ต้องการ: body ขาวล้วนทั้งหมด, มีสีแค่ header (ตั้งด้านล่าง
+  // เหมือนเดิม, มา "หลัง" การตั้ง style ของทั้งตาราง เพื่อไม่ให้ style เขียนทับ
+  // สี header ที่ตั้งเอง).
+  table.setPredefinedTableStyle("TableStyleLight1");
+  table.setShowBandedRows(false);
+  table.setShowBandedColumns(false);
+
+  // 5) จัดฟอร์แมต -- header เทา ตัวดำ ตัวหนา + freeze แถว 1 + autofit
+  const headerRowRange = table.getHeaderRowRange();
+  headerRowRange.getFormat().getFill().setColor(HEADER_FILL);
+  headerRowRange.getFormat().getFont().setColor(HEADER_FONT);
+  headerRowRange.getFormat().getFont().setBold(true);
+
+  sheet.getFreezePanes().freezeRows(1);
+
+  sheet.getRange().getFormat().autofitColumns();
+}

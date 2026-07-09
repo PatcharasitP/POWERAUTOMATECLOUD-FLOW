@@ -1,0 +1,222 @@
+[1] Get Data (Edit Columns and Year Here): Nulls included = Yes
+EVALUATE
+VAR DateFrom_ = DATE(2025,1,1)  // <-- แก้ปี/วันเริ่มต้นตรงนี้
+VAR DateTo_ = DATE(2026,12,31)  // <-- แก้ปี/วันสิ้นสุดตรงนี้
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE] = "0 Waiting for Task Assignment"
+            && 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE] >= DateFrom_
+            && 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE] <= DateTo_
+    )
+VAR TotalLocations_ = COUNTROWS(FilteredData_)
+VAR LastUpdated_ = FORMAT(MAXX(FilteredData_, 'RENEW CONTRACT TASK [NEW LOCATION]'[UPDATED_DATE]), "dd/MM/yyyy")
+VAR RowLevel_ =
+    SELECTCOLUMNS(
+        FilteredData_,
+        "TASK_ID", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "PROCESS_TYPE", 'RENEW CONTRACT TASK [NEW LOCATION]'[PROCESS_TYPE],
+        "SUB_PROCESS_TYPE", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_PROCESS_TYPE],
+        "TASK_NO", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "TASK_STATUS", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "PC_STATUS", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "STEP_V3_Y26", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "GROUP", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "SUB_STAGE", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "LOCATION_ID", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "REGION", 'RENEW CONTRACT TASK [NEW LOCATION]'[GEO_REGION],
+        "OLD_CONTRACT_CODE_LIST", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "NEW_CONTRACT_CODE", 'RENEW CONTRACT TASK [NEW LOCATION]'[CONTRACT_CODE],
+        "CONTRACT_START_DATE", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "CONTRACT_END_DATE", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "RESPONSIBLE", 'RENEW CONTRACT TASK [NEW LOCATION]'[RESPONSIBLE],
+        "SUBCONTRACTOR", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "TEAM", IF(ISBLANK('RENEW CONTRACT TASK [NEW LOCATION]'[Sub_New]), "No Assign", 'RENEW CONTRACT TASK [NEW LOCATION]'[Sub_New]),
+        "LOC_TYPE", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "SITE_TYPE_GROUP", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "HOST_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[HOST_NAME],
+        "LANDLOAD_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[LANDLOAD_NAME],
+        "LANDLOAD_TYPE", 'RENEW CONTRACT TASK [NEW LOCATION]'[LANDLOAD_TYPE],
+        "CONTRACT_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[CONTRACT_NAME],
+        "REASON", 'RENEW CONTRACT TASK [NEW LOCATION]'[REASON],
+        "REMARK", 'RENEW CONTRACT TASK [NEW LOCATION]'[REMARK],
+        "MENTOR", 'RENEW CONTRACT TASK [NEW LOCATION]'[MENTOR],
+        "BFKT", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "MODIFY_DATE", IF(ISBLANK('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_DATE]), BLANK(), RIGHT('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_DATE],4) & "-" & MID('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_DATE],4,2) & "-" & LEFT('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_DATE],2)),
+        "MODIFY_USER", 'RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_USER],
+        "UPDATED_DATE", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[UPDATED_DATE], "yyyy-MM-dd"),
+        "OLD_COMPANY_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "NEW_COMPANY_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "Risk", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+VAR DistinctIDs_ = DISTINCT(SELECTCOLUMNS(RowLevel_, "TID", [TASK_ID]))
+VAR Grouped_ =
+    ADDCOLUMNS(
+        DistinctIDs_,
+        "TASK_ID", [TID],
+        "PROCESS_TYPE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [PROCESS_TYPE])), [V], ", ", [V], ASC),
+        "SUB_PROCESS_TYPE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [SUB_PROCESS_TYPE])), [V], ", ", [V], ASC),
+        "TASK_NO", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [TASK_NO])), [V], ", ", [V], ASC),
+        "TASK_STATUS", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [TASK_STATUS])), [V], ", ", [V], ASC),
+        "PC_STATUS", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [PC_STATUS])), [V], ", ", [V], ASC),
+        "STEP_V3_Y26", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [STEP_V3_Y26])), [V], ", ", [V], ASC),
+        "GROUP", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [GROUP])), [V], ", ", [V], ASC),
+        "SUB_STAGE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [SUB_STAGE])), [V], ", ", [V], ASC),
+        "LOCATION_ID", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [LOCATION_ID])), [V], ", ", [V], ASC),
+        "REGION", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [REGION])), [V], ", ", [V], ASC),
+        "OLD_CONTRACT_CODE_LIST", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [OLD_CONTRACT_CODE_LIST])), [V], ", ", [V], ASC),
+        "NEW_CONTRACT_CODE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [NEW_CONTRACT_CODE])), [V], ", ", [V], ASC),
+        "CONTRACT_START_DATE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [CONTRACT_START_DATE])), [V], ", ", [V], ASC),
+        "CONTRACT_END_DATE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [CONTRACT_END_DATE])), [V], ", ", [V], ASC),
+        "RESPONSIBLE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [RESPONSIBLE])), [V], ", ", [V], ASC),
+        "SUBCONTRACTOR", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [SUBCONTRACTOR])), [V], ", ", [V], ASC),
+        "TEAM", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [TEAM])), [V], ", ", [V], ASC),
+        "LOC_TYPE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [LOC_TYPE])), [V], ", ", [V], ASC),
+        "SITE_TYPE_GROUP", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [SITE_TYPE_GROUP])), [V], ", ", [V], ASC),
+        "HOST_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [HOST_NAME])), [V], ", ", [V], ASC),
+        "LANDLOAD_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [LANDLOAD_NAME])), [V], ", ", [V], ASC),
+        "LANDLOAD_TYPE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [LANDLOAD_TYPE])), [V], ", ", [V], ASC),
+        "CONTRACT_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [CONTRACT_NAME])), [V], ", ", [V], ASC),
+        "REASON", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [REASON])), [V], ", ", [V], ASC),
+        "REMARK", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [REMARK])), [V], ", ", [V], ASC),
+        "MENTOR", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [MENTOR])), [V], ", ", [V], ASC),
+        "BFKT", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [BFKT])), [V], ", ", [V], ASC),
+        "MODIFY_DATE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [MODIFY_DATE])), [V], ", ", [V], ASC),
+        "MODIFY_USER", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [MODIFY_USER])), [V], ", ", [V], ASC),
+        "UPDATED_DATE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [UPDATED_DATE])), [V], ", ", [V], ASC),
+        "OLD_COMPANY_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [OLD_COMPANY_NAME])), [V], ", ", [V], ASC),
+        "NEW_COMPANY_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [NEW_COMPANY_NAME])), [V], ", ", [V], ASC),
+        "Risk", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [Risk])), [V], ", ", [V], ASC),
+        "META_TOTAL_LOCATIONS", TotalLocations_,
+        "META_LAST_UPDATED", LastUpdated_
+    )
+RETURN
+    SELECTCOLUMNS(
+        Grouped_,
+        "TASK_ID", [TASK_ID],
+        "PROCESS_TYPE", [PROCESS_TYPE],
+        "SUB_PROCESS_TYPE", [SUB_PROCESS_TYPE],
+        "TASK_NO", [TASK_NO],
+        "TASK_STATUS", [TASK_STATUS],
+        "PC_STATUS", [PC_STATUS],
+        "STEP_V3_Y26", [STEP_V3_Y26],
+        "GROUP", [GROUP],
+        "SUB_STAGE", [SUB_STAGE],
+        "LOCATION_ID", [LOCATION_ID],
+        "REGION", [REGION],
+        "OLD_CONTRACT_CODE_LIST", [OLD_CONTRACT_CODE_LIST],
+        "NEW_CONTRACT_CODE", [NEW_CONTRACT_CODE],
+        "CONTRACT_START_DATE", [CONTRACT_START_DATE],
+        "CONTRACT_END_DATE", [CONTRACT_END_DATE],
+        "RESPONSIBLE", [RESPONSIBLE],
+        "SUBCONTRACTOR", [SUBCONTRACTOR],
+        "TEAM", [TEAM],
+        "LOC_TYPE", [LOC_TYPE],
+        "SITE_TYPE_GROUP", [SITE_TYPE_GROUP],
+        "HOST_NAME", [HOST_NAME],
+        "LANDLOAD_NAME", [LANDLOAD_NAME],
+        "LANDLOAD_TYPE", [LANDLOAD_TYPE],
+        "CONTRACT_NAME", [CONTRACT_NAME],
+        "REASON", [REASON],
+        "REMARK", [REMARK],
+        "MENTOR", [MENTOR],
+        "BFKT", [BFKT],
+        "MODIFY_DATE", [MODIFY_DATE],
+        "MODIFY_USER", [MODIFY_USER],
+        "UPDATED_DATE", [UPDATED_DATE],
+        "OLD_COMPANY_NAME", [OLD_COMPANY_NAME],
+        "NEW_COMPANY_NAME", [NEW_COMPANY_NAME],
+        "Risk", [Risk],
+        "META_TOTAL_LOCATIONS", [META_TOTAL_LOCATIONS],
+        "META_LAST_UPDATED", [META_LAST_UPDATED]
+    )
+ORDER BY [REGION], [LOCATION_ID]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[2] Check If All Assigned
+length(body('Get Data (Edit Columns and Year Here)')?['firstTableRows']) is equal to 0
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3] IF YES
+Send Email (All Assigned)
+To:
+Subject: RENEWAL — 0 Wait Assign: วันนี้มอบหมายงานครบแล้ว
+Body:
+<table cellpadding="0" cellspacing="0" width="640" align="left" style="background-color:#ffffff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;">
+<tr><td>
+
+  <div style="font-size:20px;font-weight:bold;color:#222222;">RENEWAL Export On Process: Stage: 0 Wait Assign</div>
+  <div style="font-size:14px;color:#444444;margin-top:6px;">Sub Stage: 0 Waiting for Task Assignment</div>
+  <div style="font-size:13px;color:#444444;margin-top:2px;">โดยสัญญาจะหมดอายุในช่วงปี 2025–2026 ที่ยังไม่ถูกมอบหมายงาน</div>
+
+  <table cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #E0E0E0;margin:20px 0 26px 0;">
+    <tr><td style="background-color:#FAFAFA;padding:24px;text-align:center;">
+      <div style="font-size:28px;font-weight:bold;color:#222222;line-height:1.3;">✅ วันนี้ไม่มีงานค้างรอมอบหมาย</div>
+      <div style="font-size:13px;color:#666666;margin-top:8px;">(0 Waiting for Task Assignment = 0 งาน)</div>
+    </td></tr>
+  </table>
+
+  <p style="margin:10px 0 0 0;font-size:12px;color:#888888;">
+    ตรวจสอบเมื่อ @{formatDateTime(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),'dd/MM/yyyy HH:mm')} น.
+  </p>
+
+  <p style="margin:14px 0 0 0;font-size:12px;color:#888888;">
+    <b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ
+  </p>
+
+</td></tr>
+</table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[4] IF NO
+Write Excel File
+Script: Fill RENEWAL 0Wait
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(1) Get File Content
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2) Build Email Table
+From: body('Get_Data_(Edit_Columns_and_Year_Here)')?['firstTableRows']
+TASK_NO: item()?['[TASK_NO]']
+TASK_STATUS: item()?['[TASK_STATUS]']
+LOCATION_ID: item()?['[LOCATION_ID]']
+REGION: item()?['[REGION]']
+Risk: item()?['[Risk]']
+CONTRACT_END_DATE: formatDateTime(item()?['[CONTRACT_END_DATE]'], 'dd/MM/yyyy')
+OLD_COMPANY_NAME: item()?['[OLD_COMPANY_NAME]']
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(3) Compose Email Body
+Inputs:
+<table cellpadding="0" cellspacing="0" width="640" align="left" style="background-color:#ffffff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;">
+<tr><td>
+
+  <div style="font-size:20px;font-weight:bold;color:#222222;">RENEWAL Export On Process: Stage: 0 Wait Assign</div>
+  <div style="font-size:14px;color:#444444;margin-top:6px;">Sub Stage: 0 Waiting for Task Assignment</div>
+  <div style="font-size:13px;color:#444444;margin-top:2px;">โดยสัญญาจะหมดอายุในช่วงปี 2025–2026 ที่ยังไม่ถูกมอบหมายงาน</div>
+  <p style="margin:10px 0 20px 0;font-size:12px;color:#888888;">
+    ข้อมูล ณ @{first(body('Get Data (Edit Columns and Year Here)')?['firstTableRows'])?['[META_LAST_UPDATED]']}
+  </p>
+
+  <table cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #E0E0E0;margin:0 0 26px 0;">
+    <tr><td style="background-color:#FAFAFA;padding:18px;">
+      <div style="font-size:40px;font-weight:bold;color:#222222;line-height:1.1;">@{length(body('Get Data (Edit Columns and Year Here)')?['firstTableRows'])}</div>
+      <div style="font-size:13px;color:#666666;margin-top:4px;">TOTAL Waiting for Task Assignment</div>
+      <div style="font-size:11px;color:#999999;margin-top:2px;">(รวม @{first(body('Get Data (Edit Columns and Year Here)')?['firstTableRows'])?['[META_TOTAL_LOCATIONS]']} locations)</div>
+    </td></tr>
+  </table>
+
+  <div style="border-top:1px solid #E0E0E0;padding-top:16px;">
+    <p style="margin:0 0 10px 0;font-size:13px;font-weight:bold;color:#222222;">รายละเอียด (คอลัมน์เต็ม 34 คอลัมน์อยู่ในไฟล์แนบ)</p>
+    @{replace(replace(replace(body('Build Email Table'), '<table>', '<table cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;font-size:12px;margin:0 0 14px 0;">'), '<th>', '<th style="background:#D9D9D9;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;">'), '<td>', '<td style="border:1px solid #EEE;padding:5px 8px;">')}
+  </div>
+
+  <p style="margin:14px 0 0 0;font-size:12px;color:#888888;">
+    <b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ
+  </p>
+
+</td></tr>
+</table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(4) Send Email
+To:
+Subject: RENEWAL Export — 0 Wait Assign
+Body: outputs('Compose Email Body')
+Attachments Name - 1: concat('RENEWAL_0Wait_', formatDateTime(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),'yyyyMMdd_HHmm'), '.xlsx')
+Attachments Content - 1: body('Get_File_Content')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

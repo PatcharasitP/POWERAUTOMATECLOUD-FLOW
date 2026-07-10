@@ -1,0 +1,352 @@
+[1] GetData: POWER BI AGAINST: Nulls included = YES
+EVALUATE
+VAR DateFrom_ = DATE(2025,1,1)  // <-- แก้ปี/วันเริ่มต้นตรงนี้
+VAR DateTo_ = DATE(2026,12,31)  // <-- แก้ปี/วันสิ้นสุดตรงนี้
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE] = "0 Waiting for Task Assignment"
+            && 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE] >= DateFrom_
+            && 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE] <= DateTo_
+    )
+VAR TotalLocations_ = COUNTROWS(FilteredData_)
+VAR LastUpdated_ = FORMAT(MAXX(FilteredData_, 'RENEW CONTRACT TASK [NEW LOCATION]'[UPDATED_DATE]), "dd/MM/yyyy")
+VAR RowLevel_ =
+    SELECTCOLUMNS(
+        FilteredData_,
+        "TASK_ID", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "PROCESS_TYPE", 'RENEW CONTRACT TASK [NEW LOCATION]'[PROCESS_TYPE],
+        "SUB_PROCESS_TYPE", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_PROCESS_TYPE],
+        "TASK_NO", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "TASK_STATUS", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "PC_STATUS", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "STEP_V3_Y26", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "GROUP", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "SUB_STAGE", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "LOCATION_ID", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "REGION", 'RENEW CONTRACT TASK [NEW LOCATION]'[GEO_REGION],
+        "OLD_CONTRACT_CODE_LIST", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "NEW_CONTRACT_CODE", 'RENEW CONTRACT TASK [NEW LOCATION]'[CONTRACT_CODE],
+        "CONTRACT_START_DATE", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "CONTRACT_END_DATE", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "RESPONSIBLE", 'RENEW CONTRACT TASK [NEW LOCATION]'[RESPONSIBLE],
+        "SUBCONTRACTOR", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "TEAM", IF(ISBLANK('RENEW CONTRACT TASK [NEW LOCATION]'[Sub_New]), "No Assign", 'RENEW CONTRACT TASK [NEW LOCATION]'[Sub_New]),
+        "LOC_TYPE", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "SITE_TYPE_GROUP", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "HOST_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[HOST_NAME],
+        "LANDLOAD_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[LANDLOAD_NAME],
+        "LANDLOAD_TYPE", 'RENEW CONTRACT TASK [NEW LOCATION]'[LANDLOAD_TYPE],
+        "CONTRACT_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[CONTRACT_NAME],
+        "REASON", 'RENEW CONTRACT TASK [NEW LOCATION]'[REASON],
+        "REMARK", 'RENEW CONTRACT TASK [NEW LOCATION]'[REMARK],
+        "MENTOR", 'RENEW CONTRACT TASK [NEW LOCATION]'[MENTOR],
+        "BFKT", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "MODIFY_DATE", IF(ISBLANK('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_DATE]), BLANK(), RIGHT('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_DATE],4) & "-" & MID('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_DATE],4,2) & "-" & LEFT('RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_DATE],2)),
+        "MODIFY_USER", 'RENEW CONTRACT TASK [NEW LOCATION]'[MODIFY_USER],
+        "UPDATED_DATE", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[UPDATED_DATE], "yyyy-MM-dd"),
+        "OLD_COMPANY_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "NEW_COMPANY_NAME", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "Risk", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+VAR DistinctIDs_ = DISTINCT(SELECTCOLUMNS(RowLevel_, "TID", [TASK_ID]))
+VAR Grouped_ =
+    ADDCOLUMNS(
+        DistinctIDs_,
+        "TASK_ID", [TID],
+        "PROCESS_TYPE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [PROCESS_TYPE])), [V], ", ", [V], ASC),
+        "SUB_PROCESS_TYPE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [SUB_PROCESS_TYPE])), [V], ", ", [V], ASC),
+        "TASK_NO", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [TASK_NO])), [V], ", ", [V], ASC),
+        "TASK_STATUS", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [TASK_STATUS])), [V], ", ", [V], ASC),
+        "PC_STATUS", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [PC_STATUS])), [V], ", ", [V], ASC),
+        "STEP_V3_Y26", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [STEP_V3_Y26])), [V], ", ", [V], ASC),
+        "GROUP", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [GROUP])), [V], ", ", [V], ASC),
+        "SUB_STAGE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [SUB_STAGE])), [V], ", ", [V], ASC),
+        "LOCATION_ID", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [LOCATION_ID])), [V], ", ", [V], ASC),
+        "REGION", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [REGION])), [V], ", ", [V], ASC),
+        "OLD_CONTRACT_CODE_LIST", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [OLD_CONTRACT_CODE_LIST])), [V], ", ", [V], ASC),
+        "NEW_CONTRACT_CODE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [NEW_CONTRACT_CODE])), [V], ", ", [V], ASC),
+        "CONTRACT_START_DATE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [CONTRACT_START_DATE])), [V], ", ", [V], ASC),
+        "CONTRACT_END_DATE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [CONTRACT_END_DATE])), [V], ", ", [V], ASC),
+        "RESPONSIBLE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [RESPONSIBLE])), [V], ", ", [V], ASC),
+        "SUBCONTRACTOR", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [SUBCONTRACTOR])), [V], ", ", [V], ASC),
+        "TEAM", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [TEAM])), [V], ", ", [V], ASC),
+        "LOC_TYPE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [LOC_TYPE])), [V], ", ", [V], ASC),
+        "SITE_TYPE_GROUP", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [SITE_TYPE_GROUP])), [V], ", ", [V], ASC),
+        "HOST_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [HOST_NAME])), [V], ", ", [V], ASC),
+        "LANDLOAD_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [LANDLOAD_NAME])), [V], ", ", [V], ASC),
+        "LANDLOAD_TYPE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [LANDLOAD_TYPE])), [V], ", ", [V], ASC),
+        "CONTRACT_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [CONTRACT_NAME])), [V], ", ", [V], ASC),
+        "REASON", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [REASON])), [V], ", ", [V], ASC),
+        "REMARK", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [REMARK])), [V], ", ", [V], ASC),
+        "MENTOR", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [MENTOR])), [V], ", ", [V], ASC),
+        "BFKT", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [BFKT])), [V], ", ", [V], ASC),
+        "MODIFY_DATE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [MODIFY_DATE])), [V], ", ", [V], ASC),
+        "MODIFY_USER", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [MODIFY_USER])), [V], ", ", [V], ASC),
+        "UPDATED_DATE", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [UPDATED_DATE])), [V], ", ", [V], ASC),
+        "OLD_COMPANY_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [OLD_COMPANY_NAME])), [V], ", ", [V], ASC),
+        "NEW_COMPANY_NAME", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [NEW_COMPANY_NAME])), [V], ", ", [V], ASC),
+        "Risk", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(RowLevel_, [TASK_ID] = [TID]), "V", [Risk])), [V], ", ", [V], ASC),
+        "META_TOTAL_LOCATIONS", TotalLocations_,
+        "META_LAST_UPDATED", LastUpdated_
+    )
+RETURN
+    SELECTCOLUMNS(
+        Grouped_,
+        "TASK_ID", [TASK_ID],
+        "PROCESS_TYPE", [PROCESS_TYPE],
+        "SUB_PROCESS_TYPE", [SUB_PROCESS_TYPE],
+        "TASK_NO", [TASK_NO],
+        "TASK_STATUS", [TASK_STATUS],
+        "PC_STATUS", [PC_STATUS],
+        "STEP_V3_Y26", [STEP_V3_Y26],
+        "GROUP", [GROUP],
+        "SUB_STAGE", [SUB_STAGE],
+        "LOCATION_ID", [LOCATION_ID],
+        "REGION", [REGION],
+        "OLD_CONTRACT_CODE_LIST", [OLD_CONTRACT_CODE_LIST],
+        "NEW_CONTRACT_CODE", [NEW_CONTRACT_CODE],
+        "CONTRACT_START_DATE", [CONTRACT_START_DATE],
+        "CONTRACT_END_DATE", [CONTRACT_END_DATE],
+        "RESPONSIBLE", [RESPONSIBLE],
+        "SUBCONTRACTOR", [SUBCONTRACTOR],
+        "TEAM", [TEAM],
+        "LOC_TYPE", [LOC_TYPE],
+        "SITE_TYPE_GROUP", [SITE_TYPE_GROUP],
+        "HOST_NAME", [HOST_NAME],
+        "LANDLOAD_NAME", [LANDLOAD_NAME],
+        "LANDLOAD_TYPE", [LANDLOAD_TYPE],
+        "CONTRACT_NAME", [CONTRACT_NAME],
+        "REASON", [REASON],
+        "REMARK", [REMARK],
+        "MENTOR", [MENTOR],
+        "BFKT", [BFKT],
+        "MODIFY_DATE", [MODIFY_DATE],
+        "MODIFY_USER", [MODIFY_USER],
+        "UPDATED_DATE", [UPDATED_DATE],
+        "OLD_COMPANY_NAME", [OLD_COMPANY_NAME],
+        "NEW_COMPANY_NAME", [NEW_COMPANY_NAME],
+        "Risk", [Risk],
+        "META_TOTAL_LOCATIONS", [META_TOTAL_LOCATIONS],
+        "META_LAST_UPDATED", [META_LAST_UPDATED]
+    )
+ORDER BY [REGION], [LOCATION_ID]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[2] CheckIfAllAssigned: Condition
+length(body('GetData')?['firstTableRows']) is equal to 0
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3] IF TRUE: SendEmailAllAssigned
+To:
+Subject: concat('[TEST] RENEWAL Export — 0 Wait Assign (SIMPLE): ', string(length(body('GetData')?['firstTableRows'])))
+Body:
+<table cellpadding="0" cellspacing="0" style="background-color:#ffffff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;">
+<tbody><tr><td>
+
+  <div style="font-size:20px;font-weight:bold;color:#222222;">RENEWAL Export On Process: Stage: 0 Wait Assign</div>
+  <div style="font-size:14px;color:#444444;margin-top:6px;">Sub Stage: 0 Waiting for Task Assignment</div>
+  <div style="font-size:13px;color:#444444;margin-top:2px;">โดยสัญญาจะหมดอายุในช่วงปี 2025–2026 ที่ยังไม่ถูกมอบหมายงาน</div>
+
+  <table cellpadding="0" cellspacing="0" style="border:1px solid #E0E0E0;margin:20px 0 26px 0;">
+    <tbody><tr><td style="background-color:#FAFAFA;padding:24px;text-align:center;">
+      <div style="font-size:28px;font-weight:bold;color:#222222;line-height:1.3;">วันนี้ไม่มีงานค้างรอมอบหมาย</div>
+      <div style="font-size:13px;color:#666666;margin-top:8px;">(0 Waiting for Task Assignment = 0 งาน)</div>
+    </td></tr>
+  </tbody></table>
+
+  <p style="margin:10px 0 0 0;font-size:12px;color:#888888;">
+    ตรวจสอบเมื่อ @{formatDateTime(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),'dd/MM/yyyy HH:mm')} น.
+  </p>
+
+  <p style="margin:14px 0 0 0;font-size:12px;color:#888888;">
+    <b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ
+  </p>
+
+</td></tr>
+</tbody></table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[4] IF FALSE: WriteExcelFile
+Script: Fill RENEWAL 0Wait
+ScriptParameters/rowsJson: string(body('GetData')?['firstTableRows'])
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(1) GetFileContent
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2) BuildEmailTable
+From: body('GetData')?['firstTableRows']
+TASK_NO: item()?['[TASK_NO]']
+TASK_STATUS: item()?['[TASK_STATUS]']
+LOCATION_ID: item()?['[LOCATION_ID]']
+REGION: item()?['[REGION]']
+Risk: item()?['[Risk]']
+CONTRACT_END_DATE: formatDateTime(item()?['[CONTRACT_END_DATE]'], 'dd/MM/yyyy')
+OLD_COMPANY_NAME: item()?['[OLD_COMPANY_NAME]']
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(3) ComposeEmailBody
+Inputs:
+<table cellpadding="0" cellspacing="0" width="640" align="left" style="background-color:#ffffff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;">
+<tr><td>
+
+  <div style="font-size:20px;font-weight:bold;color:#222222;">RENEWAL Export On Process: Stage: 0 Wait Assign</div>
+  <div style="font-size:14px;color:#444444;margin-top:6px;">Sub Stage: 0 Waiting for Task Assignment</div>
+  <div style="font-size:13px;color:#444444;margin-top:2px;">โดยสัญญาจะหมดอายุในช่วงปี 2025–2026 ที่ยังไม่ถูกมอบหมายงาน</div>
+  <p style="margin:10px 0 20px 0;font-size:12px;color:#888888;">
+    ข้อมูล ณ @{first(body('GetData')?['firstTableRows'])?['[META_LAST_UPDATED]']}
+  </p>
+
+  <table cellpadding="0" cellspacing="0" width="100%" style="border:1px solid #E0E0E0;margin:0 0 26px 0;">
+    <tr><td style="background-color:#FAFAFA;padding:18px;">
+      <div style="font-size:40px;font-weight:bold;color:#222222;line-height:1.1;">@{length(body('GetData')?['firstTableRows'])}</div>
+      <div style="font-size:13px;color:#666666;margin-top:4px;">TOTAL Waiting for Task Assignment</div>
+      <div style="font-size:11px;color:#999999;margin-top:2px;">(รวม @{first(body('GetData')?['firstTableRows'])?['[META_TOTAL_LOCATIONS]']} locations)</div>
+    </td></tr>
+  </table>
+
+  <div style="border-top:1px solid #E0E0E0;padding-top:16px;">
+    <p style="margin:0 0 10px 0;font-size:13px;font-weight:bold;color:#222222;">รายละเอียด (คอลัมน์เต็ม 34 คอลัมน์อยู่ในไฟล์แนบ)</p>
+    @{replace(replace(replace(body('BuildEmailTable'), '<table>', '<table cellpadding=\"0\" cellspacing=\"0\" width=\"100%\" style=\"border-collapse:collapse;font-size:12px;margin:0 0 14px 0;\">'), '<th>', '<th style=\"background:#D9D9D9;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;\">'), '<td>', '<td style=\"border:1px solid #EEE;padding:5px 8px;\">')}
+  </div>
+
+  <p style="margin:14px 0 0 0;font-size:12px;color:#888888;">
+    <b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ
+  </p>
+
+</td></tr>
+</table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(4) SendEmail
+To:
+Subject: concat('[TEST] RENEWAL Export — 0 Wait Assign (SIMPLE): ', string(length(body('GetData')?['firstTableRows'])))
+Body: outputs('ComposeEmailBody')
+Name - 1: concat('RENEWAL_0Wait_', formatDateTime(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),'yyyyMMdd_HHmm'), '.xlsx')
+Content - 1: body('GetFileContent')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Script: Fill RENEWAL 0Wait
+// FillRenewal0Wait.osts.ts
+// Office Script สำหรับ flow "RENEWAL Export — 0 Wait Assign (SIMPLE)"
+// วิธีติดตั้ง: ดู "วิธีติดตั้ง_script.md" ในโฟลเดอร์เดียวกันนี้
+//
+// รับ rowsJson (string) = JSON array ของ object 1 แถวต่อ 1 location/task
+// (มาจาก Power BI query โดยตรง ไม่มี escape ใด ๆ ติดมาด้วย) แล้ว:
+//   1. เคลียร์ชีท "ALL" ทั้งหมด (ลบตาราง Excel เดิมก่อน กันตารางค้าง)
+//   2. เขียน header จาก "keys ของ object แถวแรก" -- ถ้าเพิ่ม/ลดคอลัมน์ใน DAX
+//      (action แรกของ flow) ไฟล์แนบจะตามอัตโนมัติ ไม่ต้องแก้ script นี้เลย
+//   3. เขียนข้อมูลทุกแถว
+//   4. สร้าง Excel Table ครอบข้อมูลทั้งหมด
+//   5. จัดฟอร์แมต: header เทา #D9D9D9 ตัวดำตัวหนา + freeze แถว 1 + autofit
+//      คอลัมน์ (สิ่งที่ Plan B ก่อนหน้านี้ทำไม่ได้เลย เพราะ Excel Online
+//      Business connector ไม่มี action format/freeze ใด ๆ)
+//   6. ถ้า rowsJson ว่างเปล่า/parse ไม่ได้แถวเลย -- เคลียร์ชีท + เขียน
+//      ข้อความแจ้งเฉย ๆ ไม่ throw error (กัน flow ทั้งเส้นล้มเพราะไม่มีข้อมูล)
+//
+// v3 (2026-07-09): ตัดสีฟ้า banded ออกจาก body ทั้งหมด (setPredefinedTableStyle
+// "TableStyleLight1" + setShowBandedRows/Columns(false)) -- เหลือสีแค่ header
+// เทา #D9D9D9 ตัวดำหนา, body ขาวล้วน. v2 แก้ header วงเล็บ [] + ตัด META_* ออก
+// จากไฟล์แนบแล้ว (คงไว้เหมือนเดิมใน v3 นี้).
+
+function main(workbook: ExcelScript.Workbook, rowsJson: string) {
+  const SHEET_NAME = "ALL";
+  const HEADER_FILL = "#D9D9D9";
+  const HEADER_FONT = "#000000";
+  // คีย์สงวน (metadata) ที่มากับ JSON แต่ไม่ใช่คอลัมน์ข้อมูลจริง -- ไม่ให้
+  // โผล่เป็นคอลัมน์ในไฟล์แนบ. ใช้แค่ในเนื้อเมล ไม่ใช่ในตาราง .xlsx -- ถ้าเพิ่ม
+  // metadata field ใหม่ในอนาคต เติมชื่อที่นี่ด้วย.
+  const META_KEYS = ["META_TOTAL_LOCATIONS", "META_LAST_UPDATED"];
+
+  // 1) หาหรือสร้างชีท "ALL"
+  let sheet = workbook.getWorksheet(SHEET_NAME);
+  if (!sheet) {
+    sheet = workbook.addWorksheet(SHEET_NAME);
+  }
+
+  // ลบตาราง Excel เดิมทั้งหมดก่อน (กัน error "ตารางซ้อนทับ" ตอนสร้างใหม่)
+  const existingTables = sheet.getTables();
+  for (const t of existingTables) {
+    t.delete();
+  }
+
+  // เคลียร์เนื้อหาเดิมทั้งชีท
+  const usedRange = sheet.getUsedRange();
+  if (usedRange) {
+    usedRange.clear(ExcelScript.ClearApplyTo.contents);
+  }
+
+  // 2) parse JSON -- ถ้าพังหรือว่างเปล่า ไม่ throw ปล่อยให้ rows = []
+  let rows: { [key: string]: string | number }[] = [];
+  try {
+    const parsed = JSON.parse(rowsJson);
+    if (Array.isArray(parsed)) {
+      rows = parsed;
+    }
+  } catch (e) {
+    rows = [];
+  }
+
+  if (rows.length === 0) {
+    sheet.getRange("A1").setValue("ไม่มีข้อมูล (0 แถว)");
+    return;
+  }
+
+  // bugfix (real test, live -- 2026-07-09): Power BI's own JSON output names
+  // every key with SURROUNDING SQUARE BRACKETS (e.g. "[TASK_ID]", not
+  // "TASK_ID" -- this is how the ExecuteDatasetQuery/DAX SELECTCOLUMNS output
+  // has looked in every single response this whole project, but this script
+  // naively used Object.keys() as-is the first time, so (a) the .xlsx header
+  // row literally showed "[TASK_ID]" with brackets, and (b) the META_KEYS
+  // exclusion filter never matched anything (comparing "[META_TOTAL_LOCATIONS]"
+  // against the bare "META_TOTAL_LOCATIONS" string never succeeds), so both
+  // meta fields leaked in as 2 extra real columns (36 instead of 34). Fixed
+  // by keeping the ORIGINAL bracketed key (to actually index into each row
+  // object) paired with a STRIPPED display name (written to the sheet).
+  const stripBrackets = (k: string): string => k.replace(/^\[/, "").replace(/\]$/, "");
+  const rawKeys = Object.keys(rows[0]);
+  const dataKeys = rawKeys.filter((k) => !META_KEYS.includes(stripBrackets(k)));
+  const headers = dataKeys.map(stripBrackets);
+  const numCols = headers.length;
+  const numRows = rows.length;
+
+  // 3) เขียน header + ข้อมูล
+  const headerRange = sheet.getRangeByIndexes(0, 0, 1, numCols);
+  headerRange.setValues([headers]);
+
+  const dataValues: (string | number)[][] = rows.map((r) =>
+    dataKeys.map((k) => {
+      const v = r[k];
+      return v === undefined || v === null ? "" : v;
+    })
+  );
+  const dataRange = sheet.getRangeByIndexes(1, 0, numRows, numCols);
+  dataRange.setValues(dataValues);
+
+  // 4) สร้าง Excel Table ครอบ header+data ทั้งหมด
+  const fullRange = sheet.getRangeByIndexes(0, 0, numRows + 1, numCols);
+  const table = sheet.addTable(fullRange, true);
+  table.setName("ALL_Table");
+
+  // bugfix v3 (pond, live -- เปิดไฟล์ LIVE จริงแล้วเห็น body ทั้งตารางโดนสีฟ้า
+  // banded สลับแถว): sheet.addTable() ใช้ Excel's own DEFAULT predefined table
+  // style เสมอ (เช่น "TableStyleMedium2" ซึ่งมี banded-row สีฟ้าอ่อนสลับแถว
+  // ในตัว) -- โค้ด v1/v2 ไม่เคยตั้ง style ตรง ๆ เลย มีแค่ override สีของ
+  // "header row" เท่านั้น (getHeaderRowRange()...) ซึ่งไม่แตะ "data rows" อยู่
+  // แล้ว สีฟ้าที่เห็นจึงมาจาก data rows ที่ยังใช้ style เริ่มต้นของตารางอยู่.
+  // แก้ด้วย 2 ชั้น (ยืนยัน method จริงจาก Microsoft Learn ก่อนใช้ ไม่เดา):
+  //   1) setPredefinedTableStyle("TableStyleLight1") -- style ที่อ่อนสุด/ไม่มี
+  //      สีพื้น body เลย (ชุด "Light" ทั้งหมดไม่มี banding โดย default)
+  //   2) setShowBandedRows(false) -- ปิด banded-row formatting ตรง ๆ อีกชั้น
+  //      กันเผื่อ style ไหนมี default เป็น true (ประกันสองชั้น ไม่ใช่ซ้ำซ้อนไร้ประโยชน์)
+  // ผลลัพธ์ที่ต้องการ: body ขาวล้วนทั้งหมด, มีสีแค่ header (ตั้งด้านล่าง
+  // เหมือนเดิม, มา "หลัง" การตั้ง style ของทั้งตาราง เพื่อไม่ให้ style เขียนทับ
+  // สี header ที่ตั้งเอง).
+  table.setPredefinedTableStyle("TableStyleLight1");
+  table.setShowBandedRows(false);
+  table.setShowBandedColumns(false);
+
+  // 5) จัดฟอร์แมต -- header เทา ตัวดำ ตัวหนา + freeze แถว 1 + autofit
+  const headerRowRange = table.getHeaderRowRange();
+  headerRowRange.getFormat().getFill().setColor(HEADER_FILL);
+  headerRowRange.getFormat().getFont().setColor(HEADER_FONT);
+  headerRowRange.getFormat().getFont().setBold(true);
+
+  sheet.getFreezePanes().freezeRows(1);
+
+  sheet.getRange().getFormat().autofitColumns();
+}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

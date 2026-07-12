@@ -1,0 +1,149 @@
+[1] InitRegion
+Inputs: R1
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[2] GetFileId
+File Path: @{concat('/RENEWAL_', outputs('InitRegion'), '_FULL.xlsx')}
+File: RENEWAL_R1_FULL.xlsx
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3] GetData: POWER BI AGAINST: Nulls included = Yes
+Query text:
+concat('EVALUATE
+VAR DateFrom_ = DATE(2025,1,1)  // <-- แก้วันเริ่มต้นตรงนี้
+VAR DateTo_ = DATE(2026,12,31)  // <-- แก้วันสิ้นสุดตรงนี้
+VAR StageSet_ = {"On Process","Engagement","Payment"}  // <-- แก้ stage ตรงนี้
+VAR Region_ = "', outputs('InitRegion'), '"
+VAR FilteredData_ =
+    FILTER(
+        ''RENEW CONTRACT TASK [NEW LOCATION]'',
+        ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26] IN StageSet_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE] >= DateFrom_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE] <= DateTo_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[REGIONAL_HEAD_CODE] = Region_
+    )
+VAR LastUpdated_ = FORMAT(MAXX(FilteredData_, ''RENEW CONTRACT TASK [NEW LOCATION]''[UPDATED_DATE]), "dd/MM/yyyy HH:mm:ss")
+VAR On_ = COUNTROWS(FILTER(FilteredData_, ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26]="On Process")) + 0
+VAR En_ = COUNTROWS(FILTER(FilteredData_, ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26]="Engagement")) + 0
+VAR Pay_ = COUNTROWS(FILTER(FilteredData_, ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26]="Payment")) + 0
+VAR Total_ = On_ + En_ + Pay_
+RETURN
+    ROW(
+        "META_LAST_UPDATED", LastUpdated_,
+        "META_ROWCOUNT", Total_,
+        "Grand_On", On_,
+        "Grand_En", En_,
+        "Grand_Pay", Pay_,
+        "Grand_OnPct", FORMAT(ROUND(DIVIDE(100*On_,Total_),1),"0.0"),
+        "Grand_EnPct", FORMAT(ROUND(DIVIDE(100*En_,Total_),1),"0.0"),
+        "Grand_PayPct", FORMAT(ROUND(DIVIDE(100*Pay_,Total_),1),"0.0")
+    )')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[4] GetDetail: POWER BI AGAINST: Nulls included = Yes
+concat('EVALUATE
+VAR DateFrom_ = DATE(2025,1,1)  // <-- แก้วันเริ่มต้นตรงนี้
+VAR DateTo_ = DATE(2026,12,31)  // <-- แก้วันสิ้นสุดตรงนี้
+VAR StageSet_ = {"On Process","Engagement","Payment"}  // <-- แก้ stage ตรงนี้
+VAR Region_ = "', outputs('InitRegion'), '"
+VAR FilteredData_ =
+    FILTER(
+        ''RENEW CONTRACT TASK [NEW LOCATION]'',
+        ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26] IN StageSet_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE] >= DateFrom_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE] <= DateTo_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[REGIONAL_HEAD_CODE] = Region_
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK [NEW LOCATION]''[SAR_TASK_NO],
+        "c3", ''RENEW CONTRACT TASK [NEW LOCATION]''[LOCATION_ID],
+        "c4", ''RENEW CONTRACT TASK [NEW LOCATION]''[REGIONAL_HEAD_CODE],
+        "c5", ''RENEW CONTRACT TASK [NEW LOCATION]''[SUBCONTRACTOR],
+        "c6", ''RENEW CONTRACT TASK [NEW LOCATION]''[ASSIGN_STATUS],
+        "c7", ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_CODE_LIST],
+        "c8", ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_STATUS],
+        "c9", FORMAT(''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT(''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_COMPANY_NAME],
+        "c12", ''RENEW CONTRACT TASK [NEW LOCATION]''[SITE_TYPE_EDIT],
+        "c13", ''RENEW CONTRACT TASK [NEW LOCATION]''[LOC_TYPE],
+        "c14", ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_STATUS],
+        "c15", ''RENEW CONTRACT TASK [NEW LOCATION]''[PC_STATUS],
+        "c16", ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26],
+        "c17", ''RENEW CONTRACT TASK [NEW LOCATION]''[GROUP],
+        "c18", ''RENEW CONTRACT TASK [NEW LOCATION]''[SUB_STAGE],
+        "c19", ''RENEW CONTRACT TASK [NEW LOCATION]''[SITE_CORPORATE],
+        "c20", ''RENEW CONTRACT TASK [NEW LOCATION]''[SITE_NODE_TOPOLOGY],
+        "c21", ''RENEW CONTRACT TASK [NEW LOCATION]''[BEST_GRADE],
+        "c22", ''RENEW CONTRACT TASK [NEW LOCATION]''[BFKT],
+        "c23", ''RENEW CONTRACT TASK [NEW LOCATION]''[NEW_COMPANY_NAME],
+        "c24", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis]
+    )
+ORDER BY [c3]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[5] WriteChunk1
+File: body('GetFileId')?['Id']
+Script: EXCEL_REGIONAL
+ScriptParameters/rowsJson: string(take(body('GetDetail')?['firstTableRows'], 12000))
+ScriptParameters/chunkIndex: 0
+ScriptParameters/isLastChunk: Yes
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[6] GetFileContent
+File: body('GetFileId')?['Id']
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[7] ComposeEmailBody
+Inputs:
+<table cellpadding="0" cellspacing="0" width="640" align="left" style="background-color:#ffffff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;">
+<tr><td>
+
+  <div style="font-size:20px;font-weight:bold;color:#222222;">RENEWAL Export — Region Single Summary @{outputs('InitRegion')} (FULL)</div>
+  <div style="font-size:14px;color:#444444;margin-top:6px;">Stage: On Process / Engagement / Payment</div>
+  <div style="font-size:13px;color:#444444;margin-top:2px;">โดยสัญญาจะหมดอายุในช่วงปี 2025–2026</div>
+  <p style="margin:10px 0 20px 0;font-size:12px;color:#888888;">
+    ข้อมูล ณ @{first(body('GetData')?['firstTableRows'])?['[META_LAST_UPDATED]']}
+  </p>
+
+  <table cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td width="32%" align="center" style="padding:12px 4px;background-color:#FDECEA;border-radius:6px;">
+              <div style="font-size:32px;font-weight:bold;color:#D32F2F;line-height:1.1;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_On]'], '#,##0')}</div>
+              <div style="font-size:11.5px;color:#B71C1C;font-weight:bold;text-transform:uppercase;">On Process</div>
+            </td>
+      <td width="2%"></td>
+      <td width="32%" align="center" style="padding:12px 4px;background-color:#FDF0E5;border-radius:6px;">
+              <div style="font-size:32px;font-weight:bold;color:#ED7D31;line-height:1.1;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_En]'], '#,##0')}</div>
+              <div style="font-size:11.5px;color:#C55A11;font-weight:bold;text-transform:uppercase;">Engagement</div>
+            </td>
+      <td width="2%"></td>
+      <td width="32%" align="center" style="padding:12px 4px;background-color:#E2EFDA;border-radius:6px;">
+              <div style="font-size:32px;font-weight:bold;color:#70AD47;line-height:1.1;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_Pay]'], '#,##0')}</div>
+              <div style="font-size:11.5px;color:#548235;font-weight:bold;text-transform:uppercase;">Payment</div>
+            </td>
+    </tr>
+  </table>
+
+  <table cellpadding="0" cellspacing="0" width="100%" style="margin:14px 0 5px 0;">
+    <tr>
+      <td bgcolor="#C00000" width="@{first(body('GetData')?['firstTableRows'])?['[Grand_OnPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td><td bgcolor="#ED7D31" width="@{first(body('GetData')?['firstTableRows'])?['[Grand_EnPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td><td bgcolor="#70AD47" width="@{first(body('GetData')?['firstTableRows'])?['[Grand_PayPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td>
+    </tr>
+  </table>
+  <p style="margin:0 0 14px 0;font-size:11.5px;color:#777777;">
+    <span style="color:#C00000;">&#9632;</span> On Process @{first(body('GetData')?['firstTableRows'])?['[Grand_OnPct]']}%&nbsp;&nbsp;<span style="color:#ED7D31;">&#9632;</span> Engagement @{first(body('GetData')?['firstTableRows'])?['[Grand_EnPct]']}%&nbsp;&nbsp;<span style="color:#70AD47;">&#9632;</span> Payment @{first(body('GetData')?['firstTableRows'])?['[Grand_PayPct]']}%
+  </p>
+
+  <p style="margin:8px 0 0 0;font-size:12px;color:#444444;">รวมทั้งหมด (เฉพาะภาค @{outputs('InitRegion')}): <b>@{formatNumber(first(body('GetData')?['firstTableRows'])?['[META_ROWCOUNT]'], '#,##0')}</b> รายการ</p>
+  <p style="margin:4px 0 0 0;font-size:11.5px;color:#888888;">หมายเหตุ: ไฟล์แนบเฉพาะภาค @{outputs('InitRegion')} เท่านั้น (ไม่ใช่ทั้ง 8 ภาค)</p>
+
+  <p style="margin:14px 0 0 0;font-size:12px;color:#888888;">
+    <b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ
+  </p>
+
+</td></tr>
+</table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[8] SendEmail
+Subject: concat('RENEWAL ', outputs('InitRegion'), ' FULL 2025-2026: ', string(first(body('GetData')?['firstTableRows'])?['[META_ROWCOUNT]']))
+Body: outputs('ComposeEmailBody')
+Name - 1: concat('RENEWAL_', outputs('InitRegion'), '_FULL_', formatDateTime(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),'yyyyMMdd_HHmm'), '.xlsx')
+Content - 1: body('GetFileContent')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

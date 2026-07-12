@@ -1,0 +1,447 @@
+[1] InitRegion
+Inputs: R1
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[2] GetFileId
+File Path: @{concat('/RENEWAL_', outputs('InitRegion'), '_FULL.xlsx')}
+File: RENEWAL_R1_FULL.xlsx
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3] GetData: POWER BI AGAINST: Nulls included = Yes
+Query text:
+concat('EVALUATE
+VAR DateFrom_ = DATE(2025,1,1)  // <-- แก้วันเริ่มต้นตรงนี้
+VAR DateTo_ = DATE(2026,12,31)  // <-- แก้วันสิ้นสุดตรงนี้
+VAR StageSet_ = {"On Process","Engagement","Payment"}  // <-- แก้ stage ตรงนี้
+VAR Region_ = "', outputs('InitRegion'), '"
+VAR FilteredData_ =
+    FILTER(
+        ''RENEW CONTRACT TASK [NEW LOCATION]'',
+        ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26] IN StageSet_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE] >= DateFrom_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE] <= DateTo_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[REGIONAL_HEAD_CODE] = Region_
+    )
+VAR LastUpdated_ = FORMAT(MAXX(FilteredData_, ''RENEW CONTRACT TASK [NEW LOCATION]''[UPDATED_DATE]), "dd/MM/yyyy HH:mm:ss")
+VAR On_ = COUNTROWS(FILTER(FilteredData_, ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26]="On Process")) + 0
+VAR En_ = COUNTROWS(FILTER(FilteredData_, ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26]="Engagement")) + 0
+VAR Pay_ = COUNTROWS(FILTER(FilteredData_, ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26]="Payment")) + 0
+VAR Total_ = On_ + En_ + Pay_
+RETURN
+    ROW(
+        "META_LAST_UPDATED", LastUpdated_,
+        "META_ROWCOUNT", Total_,
+        "Grand_On", On_,
+        "Grand_En", En_,
+        "Grand_Pay", Pay_,
+        "Grand_OnPct", FORMAT(ROUND(DIVIDE(100*On_,Total_),1),"0.0"),
+        "Grand_EnPct", FORMAT(ROUND(DIVIDE(100*En_,Total_),1),"0.0"),
+        "Grand_PayPct", FORMAT(ROUND(DIVIDE(100*Pay_,Total_),1),"0.0")
+    )')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[4] GetDetail: POWER BI AGAINST: Nulls included = Yes
+concat('EVALUATE
+VAR DateFrom_ = DATE(2025,1,1)  // <-- แก้วันเริ่มต้นตรงนี้
+VAR DateTo_ = DATE(2026,12,31)  // <-- แก้วันสิ้นสุดตรงนี้
+VAR StageSet_ = {"On Process","Engagement","Payment"}  // <-- แก้ stage ตรงนี้
+VAR Region_ = "', outputs('InitRegion'), '"
+VAR FilteredData_ =
+    FILTER(
+        ''RENEW CONTRACT TASK [NEW LOCATION]'',
+        ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26] IN StageSet_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE] >= DateFrom_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE] <= DateTo_
+            && ''RENEW CONTRACT TASK [NEW LOCATION]''[REGIONAL_HEAD_CODE] = Region_
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK [NEW LOCATION]''[SAR_TASK_NO],
+        "c3", ''RENEW CONTRACT TASK [NEW LOCATION]''[LOCATION_ID],
+        "c4", ''RENEW CONTRACT TASK [NEW LOCATION]''[REGIONAL_HEAD_CODE],
+        "c5", ''RENEW CONTRACT TASK [NEW LOCATION]''[SUBCONTRACTOR],
+        "c6", ''RENEW CONTRACT TASK [NEW LOCATION]''[ASSIGN_STATUS],
+        "c7", ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_CODE_LIST],
+        "c8", ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_STATUS],
+        "c9", FORMAT(''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT(''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", ''RENEW CONTRACT TASK [NEW LOCATION]''[OLD_COMPANY_NAME],
+        "c12", ''RENEW CONTRACT TASK [NEW LOCATION]''[SITE_TYPE_EDIT],
+        "c13", ''RENEW CONTRACT TASK [NEW LOCATION]''[LOC_TYPE],
+        "c14", ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_STATUS],
+        "c15", ''RENEW CONTRACT TASK [NEW LOCATION]''[PC_STATUS],
+        "c16", ''RENEW CONTRACT TASK [NEW LOCATION]''[STEP_V3_Y26],
+        "c17", ''RENEW CONTRACT TASK [NEW LOCATION]''[GROUP],
+        "c18", ''RENEW CONTRACT TASK [NEW LOCATION]''[SUB_STAGE],
+        "c19", ''RENEW CONTRACT TASK [NEW LOCATION]''[SITE_CORPORATE],
+        "c20", ''RENEW CONTRACT TASK [NEW LOCATION]''[SITE_NODE_TOPOLOGY],
+        "c21", ''RENEW CONTRACT TASK [NEW LOCATION]''[BEST_GRADE],
+        "c22", ''RENEW CONTRACT TASK [NEW LOCATION]''[BFKT],
+        "c23", ''RENEW CONTRACT TASK [NEW LOCATION]''[NEW_COMPANY_NAME],
+        "c24", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis]
+    )
+ORDER BY [c3]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[5] WriteChunk1
+File: body('GetFileId')?['Id']
+Script: EXCEL_REGIONAL
+ScriptParameters/rowsJson: string(take(body('GetDetail')?['firstTableRows'], 12000))
+ScriptParameters/chunkIndex: 0
+ScriptParameters/isLastChunk: Yes
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[6] GetFileContent
+File: body('GetFileId')?['Id']
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[7] ComposeEmailBody
+Inputs:
+<table cellpadding="0" cellspacing="0" width="640" align="left" style="background-color:#ffffff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;">
+<tr><td>
+
+  <div style="font-size:20px;font-weight:bold;color:#222222;">RENEWAL Export — Region Single Summary @{outputs('InitRegion')} (FULL)</div>
+  <div style="font-size:14px;color:#444444;margin-top:6px;">Stage: On Process / Engagement / Payment</div>
+  <div style="font-size:13px;color:#444444;margin-top:2px;">โดยสัญญาจะหมดอายุในช่วงปี 2025–2026</div>
+  <p style="margin:10px 0 20px 0;font-size:12px;color:#888888;">
+    ข้อมูล ณ @{first(body('GetData')?['firstTableRows'])?['[META_LAST_UPDATED]']}
+  </p>
+
+  <table cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td width="32%" align="center" style="padding:12px 4px;background-color:#FDECEA;border-radius:6px;">
+              <div style="font-size:32px;font-weight:bold;color:#D32F2F;line-height:1.1;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_On]'], '#,##0')}</div>
+              <div style="font-size:11.5px;color:#B71C1C;font-weight:bold;text-transform:uppercase;">On Process</div>
+            </td>
+      <td width="2%"></td>
+      <td width="32%" align="center" style="padding:12px 4px;background-color:#FDF0E5;border-radius:6px;">
+              <div style="font-size:32px;font-weight:bold;color:#ED7D31;line-height:1.1;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_En]'], '#,##0')}</div>
+              <div style="font-size:11.5px;color:#C55A11;font-weight:bold;text-transform:uppercase;">Engagement</div>
+            </td>
+      <td width="2%"></td>
+      <td width="32%" align="center" style="padding:12px 4px;background-color:#E2EFDA;border-radius:6px;">
+              <div style="font-size:32px;font-weight:bold;color:#70AD47;line-height:1.1;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_Pay]'], '#,##0')}</div>
+              <div style="font-size:11.5px;color:#548235;font-weight:bold;text-transform:uppercase;">Payment</div>
+            </td>
+    </tr>
+  </table>
+
+  <table cellpadding="0" cellspacing="0" width="100%" style="margin:14px 0 5px 0;">
+    <tr>
+      <td bgcolor="#C00000" width="@{first(body('GetData')?['firstTableRows'])?['[Grand_OnPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td><td bgcolor="#ED7D31" width="@{first(body('GetData')?['firstTableRows'])?['[Grand_EnPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td><td bgcolor="#70AD47" width="@{first(body('GetData')?['firstTableRows'])?['[Grand_PayPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td>
+    </tr>
+  </table>
+  <p style="margin:0 0 14px 0;font-size:11.5px;color:#777777;">
+    <span style="color:#C00000;">&#9632;</span> On Process @{first(body('GetData')?['firstTableRows'])?['[Grand_OnPct]']}%&nbsp;&nbsp;<span style="color:#ED7D31;">&#9632;</span> Engagement @{first(body('GetData')?['firstTableRows'])?['[Grand_EnPct]']}%&nbsp;&nbsp;<span style="color:#70AD47;">&#9632;</span> Payment @{first(body('GetData')?['firstTableRows'])?['[Grand_PayPct]']}%
+  </p>
+
+  <p style="margin:8px 0 0 0;font-size:12px;color:#444444;">รวมทั้งหมด (เฉพาะภาค @{outputs('InitRegion')}): <b>@{formatNumber(first(body('GetData')?['firstTableRows'])?['[META_ROWCOUNT]'], '#,##0')}</b> รายการ</p>
+  <p style="margin:4px 0 0 0;font-size:11.5px;color:#888888;">หมายเหตุ: ไฟล์แนบเฉพาะภาค @{outputs('InitRegion')} เท่านั้น (ไม่ใช่ทั้ง 8 ภาค)</p>
+
+  <p style="margin:14px 0 0 0;font-size:12px;color:#888888;">
+    <b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ
+  </p>
+
+</td></tr>
+</table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[8] SendEmail
+Subject: concat('RENEWAL ', outputs('InitRegion'), ' FULL 2025-2026: ', string(first(body('GetData')?['firstTableRows'])?['[META_ROWCOUNT]']))
+Body: outputs('ComposeEmailBody')
+Name - 1: concat('RENEWAL_', outputs('InitRegion'), '_FULL_', formatDateTime(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),'yyyyMMdd_HHmm'), '.xlsx')
+Content - 1: body('GetFileContent')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Script: EXCEL_REGIONAL
+// FillRenewalRegional_v4.osts.ts
+// ==========================================================================
+
+function main(
+    workbook: ExcelScript.Workbook,
+    rowsJson: string,
+    chunkIndex: number,
+    isLastChunk: boolean
+) {
+    // เหมือน v3: ปิดโหมดคำนวณอัตโนมัติก่อนเขียนข้อมูล + คืนค่า + calculate(full)
+    // ท้ายสคริปต์ -- ทำทุก call (ไม่ใช่แค่ chunkIndex===0/isLastChunk) เพราะ
+    // ต้นทุนเป็น O(1) ต่อ call และปลอดภัยกว่า (แต่ละ call เป็นการรันสคริปต์แยก
+    // จริง ๆ ตามสถาปัตยกรรม Office Script ผ่าน Power Automate ไม่ใช่ state ที่
+    // ต่อเนื่องกันในหน่วยความจำเดียว)
+    const application = workbook.getApplication();
+    const originalCalcMode = application.getCalculationMode();
+    application.setCalculationMode(ExcelScript.CalculationMode.manual);
+
+    processChunk(workbook, rowsJson, chunkIndex, isLastChunk);
+
+    application.setCalculationMode(originalCalcMode);
+    application.calculate(ExcelScript.CalculationType.full);
+}
+
+function processChunk(
+    workbook: ExcelScript.Workbook,
+    rowsJson: string,
+    chunkIndex: number,
+    isLastChunk: boolean
+) {
+    const HEADER_FILL = "#D9D9D9";
+    const HEADER_FONT = "#000000";
+    const ALL_SHEET = "ALL";
+    const ALL_TABLE_NAME = "ALL_Table";
+
+    // HEADER_MAP: [c-key จาก DAX, ชื่อคอลัมน์จริง, ความกว้างคอลัมน์คงที่หน่วยพิกเซล]
+    // ลำดับ/ความหมายต้องตรงกับ DAX SELECTCOLUMNS ของ REGIONAL_Q_DETAIL.dax เป๊ะ
+    // (ถ้าจะเพิ่ม/ลด/สลับคอลัมน์ ต้องแก้ 2 จุดพร้อมกัน) -- ไม่เปลี่ยนจาก v2/v3
+    const HEADER_MAP: [string, string, number][] = [
+        ["c1", "TASK_ID", 70],
+        ["c2", "SAR_TASK_NO", 100],
+        ["c3", "LOCATION_ID", 90],
+        ["c4", "REGIONAL", 70],
+        ["c5", "SUBCONTRACTOR", 110],
+        ["c6", "ASSIGN_STATUS", 100],
+        ["c7", "CONTRACT_CODE", 100],
+        ["c8", "CONTRACT_STATUS", 100],
+        ["c9", "CONTRACT_START_DATE", 100],
+        ["c10", "CONTRACT_END_DATE", 100],
+        ["c11", "OLD_COMPANY_NAME", 180],
+        ["c12", "SITE_TYPE_EDIT", 100],
+        ["c13", "LOC_TYPE", 80],
+        ["c14", "TASK_STATUS", 120],
+        ["c15", "PC_STATUS", 100],
+        ["c16", "STEP_V3_Y26", 100],
+        ["c17", "GROUP", 80],
+        ["c18", "SUB_STAGE", 160],
+        ["c19", "SITE_CORPORATE", 100],
+        ["c20", "SITE_NODE", 100],
+        ["c21", "SITE_GRADE", 80],
+        ["c22", "SITE_BFKT", 80],
+        ["c23", "NEW_COMPANY_NAME", 180],
+        ["c24", "Risk", 100],
+    ];
+    const REGION_KEY = "c4"; // = HEADER_MAP's "REGIONAL"
+
+    type Row = { [key: string]: string | number };
+
+    // Power BI JSON คีย์มีวงเล็บเหลี่ยมล้อมเสมอ (เช่น "[c1]" ไม่ใช่ "c1") --
+    // เหมือน v1-v3
+    const getVal = (r: Row, key: string): string | number | undefined => {
+        let v = r[key];
+        if (v === undefined) v = r[`[${key}]`];
+        return v;
+    };
+
+    // parse JSON -- ถ้าพังหรือว่างเปล่า ไม่ throw ปล่อยให้ rows = [] -- try/catch
+    // จุดเดียวในทั้งไฟล์ เรียกครั้งเดียวตอนต้น ไม่ได้อยู่ในหรือล้อมรอบลูปใด ๆ
+    // (perf ข้อ 2 ตาม OFFICE_SCRIPT_OPTIMIZATION_สูตร.md -- เหมือน v3)
+    let rows: Row[] = [];
+    try {
+        const parsed = JSON.parse(rowsJson);
+        if (Array.isArray(parsed)) {
+            rows = parsed;
+        }
+    } catch (e) {
+        rows = [];
+    }
+
+    // ตำแหน่งแถวถัดไปที่ยังว่างของชีท -- อ่าน metadata ครั้งเดียวต่อชีทต่อ call
+    // (นอกลูปเสมอ) -- ถ้า usedRange เป็น undefined (ชีทว่างเปล่าสนิท -- เพิ่งถูก
+    // ล้าง/สร้างที่ chunkIndex===0 หรือเพิ่งถูก addWorksheet() ใน call นี้เอง)
+    // ถือว่าแถวถัดไปคือแถว 0 (เขียน header คั่นก่อนข้อมูลจริง)
+    function getNextRowIndex(sheet: ExcelScript.Worksheet): number {
+        const used = sheet.getUsedRange();
+        if (!used) {
+            return 0;
+        }
+        return used.getRowIndex() + used.getRowCount();
+    }
+
+    // จัดสีหัวตาราง + freeze แถวแรก -- ใช้ได้ทั้ง Range จาก Table (ชีท ALL) และ
+    // Range ธรรมดา (ชีท region ไม่มี Table object) -- เหมือน v3 ทุกประการ
+    function applyHeaderStyle(sheet: ExcelScript.Worksheet, headerRange: ExcelScript.Range) {
+        const fmt = headerRange.getFormat();
+        fmt.getFill().setColor(HEADER_FILL);
+        fmt.getFont().setColor(HEADER_FONT);
+        fmt.getFont().setBold(true);
+        sheet.getFreezePanes().freezeRows(1); // freeze แถว header -> A2 กลายเป็น
+        // เซลล์บนซ้ายที่ scroll ได้ (เหมือน v2/v3 ทุกประการ)
+    }
+
+    // ตั้งความกว้างคอลัมน์คงที่ทีละคอลัมน์ (O(cols)=24 ครั้ง/ชีท) แทน
+    // autofitColumns() -- เหมือน v2/v3 ทุกประการ
+    function applyColumnWidths(sheet: ExcelScript.Worksheet) {
+        for (let i = 0; i < HEADER_MAP.length; i++) {
+            sheet.getRangeByIndexes(0, i, 1, 1).getFormat().setColumnWidth(HEADER_MAP[i][2]);
+        }
+    }
+
+    // เขียน/ต่อท้าย chunk นี้ลงชีทเดียว -- setValues() ก้อนเดียวเสมอ (ไม่มี
+    // inner BATCH_SIZE loop เหมือน v2/v3 อีกต่อไป เพราะขนาด chunk ณ ต้นทาง flow
+    // ถูกจำกัดไว้แล้วที่ CHUNK_SIZE คงที่ต่อ call (ออกแบบไว้ที่ 8,000 แถว/call
+    // ในดีไซน์ flow -- ดู `วิธีติดตั้ง_script_regional.md` section "ROUND 10
+    // ภาค 10") ซึ่งพิสูจน์แล้วปลอดภัยเป็น setValues เดียวจากผลทดสอบจริง ROUND 10
+    // ภาค 9 (mode=BOTH เดิมเขียนรวม 9,579 แถวลง ALL+region ในคำเรียกเดียว
+    // Succeeded ใน 19.23 วิ ซึ่งมากกว่าขนาด chunk เดี่ยวสูงสุดที่นี่อยู่แล้ว) --
+    // header เขียนคั่นอัตโนมัติเฉพาะตอนที่ sheet ยังว่างเปล่าสนิท
+    // (getNextRowIndex()===0) ไม่ว่าจะเป็น chunk แรกของทั้งชุด (ชีท ALL) หรือ
+    // chunk แรกที่ region นี้ปรากฏตัวครั้งแรก (ชีท region สร้างกลาง run เมื่อไหร่
+    // ก็ได้ -- ดู comment ที่จุดเรียกด้านล่าง) -- ไม่ต้องมี parameter
+    // "isFirstWrite" แยกเลย เพราะ derive ได้ตรง ๆ จากสถานะจริงของชีท
+    function writeChunkToSheet(sheet: ExcelScript.Worksheet, sheetRows: Row[]) {
+        const dataKeys = HEADER_MAP.map(([k]) => k);
+        const headers = HEADER_MAP.map(([, h]) => h);
+        const numCols = headers.length;
+
+        const dataValues: (string | number)[][] = sheetRows.map((r) =>
+            dataKeys.map((k) => {
+                const v = getVal(r, k);
+                return v === undefined || v === null ? "" : v;
+            })
+        );
+
+        const nextRow = getNextRowIndex(sheet);
+        const includeHeader = nextRow === 0;
+        const rowsToWrite: (string | number)[][] = includeHeader
+            ? [headers, ...dataValues]
+            : dataValues;
+        const range = sheet.getRangeByIndexes(nextRow, 0, rowsToWrite.length, numCols);
+        range.setValues(rowsToWrite);
+    }
+
+    // ===== chunkIndex===0: เตรียมชีท (ทำครั้งเดียวต่อการรัน 4-call ทั้งชุด) =====
+    if (chunkIndex === 0) {
+        // ชีท ALL: ลบ Table เดิม (ถ้ามี) + ล้างทั้งเนื้อหา+ฟอร์แมตเดิมด้วย
+        // ClearApplyTo.all (‼️ ไม่ใช่ .contents เหมือน v3) -- เหตุผลสำคัญที่ต่าง
+        // จาก v3: v4 พึ่ง getUsedRange() หาตำแหน่งแถวถัดไปสำหรับ append ข้ามหลาย
+        // call -- ถ้าเหลือฟอร์แมตเก่าค้าง (เช่น รอบก่อนเป็น FULL 29,397 แถว มีสี
+        // หัวตาราง/ธีมคอลัมน์กว้างขวางกว่ารอบนี้) getUsedRange() จะยังนับเป็น
+        // "used" ต่อไปเพราะฟอร์แมตก็นับรวม (ยืนยันจาก Microsoft Learn:
+        // "the smallest range that encompasses any cells that have a value OR
+        // FORMATTING assigned to them") -- ทำให้ getNextRowIndex() ของ chunk
+        // ถัดไปคำนวณผิดพลาด เขียนทับผิดตำแหน่ง/เว้นช่องว่างเป็นแถวว่างค้าง --
+        // ClearApplyTo.all ล้างทั้งค่า+ฟอร์แมตกลับสู่ default เพื่อให้ usedRange
+        // สะท้อนเฉพาะข้อมูลที่รอบนี้เขียนเองเท่านั้น
+        const allSheet = workbook.getWorksheet(ALL_SHEET);
+        if (allSheet) {
+            for (const t of allSheet.getTables()) {
+                t.delete();
+            }
+            const used = allSheet.getUsedRange();
+            if (used) {
+                used.clear(ExcelScript.ClearApplyTo.all);
+            }
+        } else {
+            // เผื่อกรณีแม่แบบไม่มีชีท ALL อยู่ก่อน (ไม่ควรเกิดในทางปฏิบัติ เพราะ
+            // RENEWAL_Regional_BLANK_TEMPLATE.xlsx มีชีท ALL มาตั้งแต่ต้น -- กันไว้
+            // เผื่ออนาคต)
+            workbook.addWorksheet(ALL_SHEET);
+        }
+
+        // ชีท R* (ทุกชีทที่ไม่ใช่ ALL): ลบทิ้งทั้งชีท (ไม่ clear-in-place แบบ ALL)
+        // -- ชีท region ที่ถูกใช้งานจริงรอบนี้จะถูกสร้างใหม่ผ่าน addWorksheet()
+        // เสมอ (usedRange ว่างเปล่า 100% ตั้งแต่เกิด ไม่มีฟอร์แมตค้างจากรอบก่อนให้
+        // ต้องกังวลเรื่อง getNextRowIndex() ผิดพลาดเลย -- ง่ายกว่าและปลอดภัยกว่า
+        // การ clear-in-place ของชีท ALL ด้านบน)
+        for (const sh of workbook.getWorksheets()) {
+            if (sh.getName() !== ALL_SHEET) {
+                sh.delete();
+            }
+        }
+    }
+
+    // ===== เขียน/ต่อท้าย chunk นี้ (ทำทุก call ที่ chunk นี้มีแถวจริง -- chunk
+    // ว่างเปล่า [] = no-op เร็ว ข้ามส่วนนี้ทั้งหมด) =====
+    if (rows.length > 0) {
+        // ชีท ALL: ทุกแถวของ chunk นี้ ไม่กรอง ไม่ dedup -- ชีท ALL มีอยู่แล้วเสมอ
+        // ณ จุดนี้ (สร้าง/เคลียร์ไปแล้วที่ chunkIndex===0 ถ้าเป็น call แรก, หรือมี
+        // อยู่ต่อเนื่องจาก call ก่อนหน้าถ้าไม่ใช่)
+        const allSheet = workbook.getWorksheet(ALL_SHEET);
+        if (allSheet) {
+            writeChunkToSheet(allSheet, rows);
+        }
+
+        // แยกกลุ่มตาม region เฉพาะแถวใน chunk นี้เท่านั้น (สคริปต์ไม่รู้ทั้ง
+        // dataset ในแต่ละ call -- ต่างจาก v1-v3 ที่รู้ทุกแถวพร้อมกันในคำเรียก
+        // เดียว) -- ข้อมูลจริงเรียง ORDER BY REGION จาก DAX เสมอ (ดู
+        // REGIONAL_Q_DETAIL.dax) ทำให้ region เดียวกันมักอยู่ติดกันข้าม chunk แต่
+        // โค้ดด้านล่างนี้ไม่ได้พึ่งพาสมมติฐานนั้นเลย (สร้างใหม่ถ้ายังไม่เคยเจอ /
+        // ต่อท้ายถ้าเคยเจอแล้ว ถูกต้องเสมอไม่ว่าลำดับ region จะกระโดดไปมาข้าม
+        // chunk แค่ไหนก็ตาม)
+        const groups: { [region: string]: Row[] } = {};
+        for (const r of rows) {
+            const regionVal = getVal(r, REGION_KEY);
+            const region =
+                regionVal === undefined || regionVal === null || regionVal === ""
+                    ? "UNKNOWN"
+                    : String(regionVal);
+            if (!groups[region]) {
+                groups[region] = [];
+            }
+            groups[region].push(r);
+        }
+        for (const region of Object.keys(groups)) {
+            // ชื่อชีท Excel ห้ามเกิน 31 ตัวอักษร/ห้ามมี \ / ? * [ ] : -- เหมือน v3
+            const safeName = region.replace(/[\\/?*[\]:]/g, "_").substring(0, 31);
+            let sheet = workbook.getWorksheet(safeName);
+            if (!sheet) {
+                // v4 (สืบทอด fix จาก v3): สร้างชีทใหม่ผ่าน addWorksheet() แล้วเขียน
+                // ค่าจริงตรง ๆ ผ่าน writeChunkToSheet() เท่านั้น -- ห้ามเรียก
+                // addTable()/setName() บนชีทที่สร้างใหม่ในสคริปต์เดียวกันเด็ดขาด
+                // (บั๊ก ROUND 10 ภาค 7: HTTP 400 "InvalidArgument", "type":"Table",
+                // "method":"setName" -- แก้แล้วจริงด้วย live run ROUND 10 ภาค 9,
+                // Round 1 OnEn Succeeded 19.23s) -- Excel Table object ของชีท region
+                // จะไม่ถูกสร้างเลยตลอดทั้งไฟล์นี้ (เหมือน v3) แม้แต่ตอน isLastChunk
+                sheet = workbook.addWorksheet(safeName);
+            }
+            writeChunkToSheet(sheet, groups[region]);
+        }
+    }
+
+    // ===== isLastChunk===true: จัด finishing ครั้งเดียว (ไม่ว่า chunk สุดท้าย
+    // จะมีแถวใหม่หรือไม่ก็ตาม -- ต้องรันเสมอเพื่อปิดงาน Table/style/freeze ให้
+    // ครบ ไม่งั้นไฟล์จะค้างเป็นค่าดิบไม่มีฟอร์แมตเลย) =====
+    if (isLastChunk) {
+        // ชีท ALL: มี Excel Table object เหมือน v1-v3 ทุกประการ (พิสูจน์แล้วว่า
+        // ทำงาน 100% เพราะเกิดขึ้น "บนชีทที่มีอยู่แล้ว" ผ่าน getWorksheet() ไม่ใช่
+        // addWorksheet() -- ไม่ชนบั๊ก ROUND 10 ภาค 7 เลย) -- ใช้ usedRange ล่าสุด
+        // ตรง ๆ เป็นขอบเขต Table (ไม่ต้องคำนวณ numRows+numCols เองเหมือน v3 อีก
+        // ต่อไป เพราะ v4 ล้างฟอร์แมตสะอาดตั้งแต่ chunkIndex===0 แล้วเขียนแต่ค่า
+        // จริงล้วนทุก call หลังจากนั้น -- usedRange ตอนนี้จึงตรงกับข้อมูลจริง 100%
+        // เป๊ะ ไม่มีฟอร์แมตเก่าปนเปื้อนอีก)
+        const allSheet = workbook.getWorksheet(ALL_SHEET);
+        if (allSheet) {
+            const used = allSheet.getUsedRange();
+            if (!used) {
+                // ไม่มีข้อมูลเลยตลอดทั้ง 4 chunk (สโคปว่างเปล่าจริง ๆ)
+                allSheet.getRange("A1").setValue("ไม่มีข้อมูล (0 แถว)");
+            } else {
+                const table = allSheet.addTable(used, true);
+                table.setName(ALL_TABLE_NAME);
+                table.setPredefinedTableStyle("TableStyleLight1");
+                table.setShowBandedRows(false);
+                table.setShowBandedColumns(false);
+                applyHeaderStyle(allSheet, table.getHeaderRowRange());
+                applyColumnWidths(allSheet);
+            }
+        }
+
+        // ทุกชีท region ที่มีอยู่จริง ณ ตอนนี้ (สร้าง+เขียนไปแล้วในบาง call ก่อน
+        // หน้า หรือ call นี้เอง) -- ไม่มี Table object เหมือน v3 -- จัดสีหัวตาราง
+        // + freeze + ความกว้างคอลัมน์ตรง ๆ บน Range แทน -- ทุกชีทที่ผ่านลูปนี้
+        // การันตีว่ามี header+ข้อมูลอยู่แล้วเสมอ (สร้างพร้อมเขียนคู่กันเสมอผ่าน
+        // writeChunkToSheet() ด้านบน ไม่มีทางมีชีท region ที่ว่างเปล่าสนิทหลงเหลือ
+        // ถึงจุดนี้ได้)
+        for (const sheet of workbook.getWorksheets()) {
+            const name = sheet.getName();
+            if (name === ALL_SHEET) {
+                continue;
+            }
+            applyHeaderStyle(sheet, sheet.getRangeByIndexes(0, 0, 1, HEADER_MAP.length));
+            applyColumnWidths(sheet);
+        }
+    }
+
+    // perf ข้อ 2: console.log จุดเดียวในทั้งไฟล์ -- นอกลูปทั้งหมด, บรรทัดสุดท้าย
+    // ของฟังก์ชันนี้, เรียกครั้งเดียวต่อการรันสคริปต์ -- "ต่อการรันสคริปต์"
+    // หมายถึงต่อ 1 call (ไม่ใช่ต่อทั้ง 4 call รวมกัน) เพราะแต่ละ call คือการรัน
+    // Office Script แยกกันจริง ๆ ตามสถาปัตยกรรม Run script ผ่าน Power Automate
+    // -- log ค่า rows.length ของ "chunk นี้" เท่านั้น (สคริปต์ไม่รู้ผลรวมทั้ง
+    // dataset ในแต่ละ call)
+    console.log(
+        `FillRenewalRegional v4: chunkIndex=${chunkIndex}, isLastChunk=${isLastChunk}, rows(this chunk)=${rows.length}`
+    );
+}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

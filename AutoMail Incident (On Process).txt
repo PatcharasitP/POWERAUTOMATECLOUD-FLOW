@@ -1,0 +1,134 @@
+[1] Recurrence
+Interval: 1: Frequency: Day
+Time zone: (UTC + 07:00 Bangkok, Hanoi, Jakarta)
+At these hours: 6, 12, 18
+At these minutes: 0
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[2] RefreshDataset
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3] Delay
+Count: 1: Unit: Minute
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[4] RunQueryGraph: POWER BI AGAINST: Nulls included = No
+EVALUATE
+VAR Total_ = CALCULATE('Measure'[CountRows], 'cr802_siteincident2026'[Status ticket] = "On process")
+VAR OV_ = CALCULATE('Measure'[CountRows], 'cr802_siteincident2026'[Status ticket] = "On process", 'cr802_siteincident2026'[SLA Grouped] <> "0-3 Days")
+VAR WI_ = CALCULATE('Measure'[CountRows], 'cr802_siteincident2026'[Status ticket] = "On process", 'cr802_siteincident2026'[SLA Grouped] = "0-3 Days")
+VAR Regions_ = FILTER(
+    ADDCOLUMNS(VALUES('cr802_siteincident2026'[Registered by]),
+        "n", CALCULATE('Measure'[CountRows], 'cr802_siteincident2026'[Status ticket] = "On process"),
+        "nOV", CALCULATE('Measure'[CountRows], 'cr802_siteincident2026'[Status ticket] = "On process", 'cr802_siteincident2026'[SLA Grouped] <> "0-3 Days"),
+        "nWI", CALCULATE('Measure'[CountRows], 'cr802_siteincident2026'[Status ticket] = "On process", 'cr802_siteincident2026'[SLA Grouped] = "0-3 Days")),
+    [n] > 0)
+VAR MaxN_ = MAXX(Regions_, [n])
+VAR CatBars_ = CONCATENATEX(Regions_,
+    "<tr><td nowrap style='padding:3px 10px 3px 0;font-size:12.5px;color:#333;white-space:nowrap;font-weight:bold;'>" & SUBSTITUTE(SUBSTITUTE('cr802_siteincident2026'[Registered by], "&", "&amp;"), " ", "&nbsp;") & "&nbsp;(" & [n] & ")" &
+    "</td><td style='width:100%;padding:3px 0;'><table cellpadding='0' cellspacing='0' width='100%'><tr>" &
+    IF([nOV] > 0,
+        "<td bgcolor='#ED7D31' width='" & FORMAT(ROUND(DIVIDE(90 * [nOV], MaxN_), 0), "0") & "%' align='center' style='font-size:10.5px;line-height:14px;color:#FFFFFF;font-weight:bold;'>" & [nOV] & "</td>",
+        "") &
+    IF([nWI] > 0,
+        "<td bgcolor='#4472C4' width='" & FORMAT(ROUND(DIVIDE(90 * [nWI], MaxN_), 0), "0") & "%' align='center' style='font-size:10.5px;line-height:14px;color:#FFFFFF;font-weight:bold;'>" & [nWI] & "</td>",
+        "") &
+    "<td width='100%'></td></tr></table></td></tr>",
+    "", [n], DESC)
+RETURN ROW(
+    "TotalOnProcess", Total_,
+    "OverCount", OV_,
+    "WithinCount", WI_,
+    "OverPct", FORMAT(ROUND(DIVIDE(100 * OV_, Total_, 0), 0), "0"),
+    "WithinPct", FORMAT(ROUND(DIVIDE(100 * WI_, Total_, 0), 0), "0"),
+    "AsOf", FORMAT(UTCNOW() + 7/24, "dd/MM/yyyy HH:mm"),
+    "CatBars", CatBars_)
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[5] Condition
+int(first(body('RunQueryGraph')?['firstTableRows'])?['[TotalOnProcess]']) is greater than 0
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[6] IF TRUE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(1) RunQueryDetail: POWER BI AGAINST: Nulls included = No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2) ComposeTotalCount: outputs('RunQueryDetail')?['body/firstTableRows'][0]['[CountRows]']
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(3) FilterArray: From: outputs('RunQueryDetail')?['body/firstTableRows']
+Filter Query: item()?['[IsGrandTotalRowTotal]'] is equal to false
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(4) CreateHTMLTableBI
+From: body('FilterArray')
+SiteCode: item()?['cr802_siteincident2026[Site Code]']
+Region: item()?['cr802_siteincident2026[Registered by]']
+Status: item()?['cr802_siteincident2026[statuscodename]']
+SiteName: item()?['cr802_siteincident2026[Site Name]']
+InAnyproject: item()?['cr802_siteincident2026[In Any project?]']
+Owner: item()?['cr802_siteincident2026[Created By]']
+SLA: 
+if(equals(item()?['cr802_siteincident2026[SLA Grouped]'],'0-3 Days'),item()?['cr802_siteincident2026[SLA Grouped]'],concat('<span style="color:#C00000;font-weight:bold;">',item()?['cr802_siteincident2026[SLA Grouped]'],'</span>'))
+Remark: item()?['cr802_siteincident2026[Finding]']
+RegisteredDate: item()?['cr802_siteincident2026[Registered date]']
+Link: concat('<a href="',item()?['cr802_siteincident2026[IncidentURL]'],'">Link this Site</a>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(5) ComposeCSS
+Inputs: 
+replace(replace(replace(replace(body('CreateHTMLTableBI'),'<table>','<table style="border:1px solid #000;background-color:#ffffff;width:100%;text-align:center;border-collapse:collapse;font-family:Arial,sans-serif;">'),'<th>','<th style="border:1px solid #000;padding:6px;background-color:#000;color:#ffffff;font-size:14px;text-align:center;">'),'<td>','<td style="border:1px solid #000;padding:6px;font-size:13px;text-align:center;">'),'<tr>','<tr style="background-color:#ffffff;">')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(6) ComposeGraph
+Inputs:
+<table cellpadding="0" cellspacing="0" width="100%" style="max-width:660px;border:1px solid #E0E0E0;border-radius:8px;background-color:#FAFAFA;margin:0 0 20px 0;">
+  <tr><td style="padding:16px 18px;">
+    <p style="margin:0 0 12px 0;font-size:12.5px;font-weight:bold;color:#666666;letter-spacing:.5px;">
+      SITE INCIDENT ON PROCESS &mdash; ข้อมูล ณ @{first(body('RunQueryGraph')?['firstTableRows'])?['[AsOf]']} น.
+    </p>
+    <table cellpadding="0" cellspacing="0" width="100%">
+      <tr>
+        <td width="32%" align="center" style="padding:12px 4px;background-color:#FDECEA;border-radius:6px;">
+          <div style="font-size:32px;font-weight:bold;color:#D32F2F;line-height:1.1;">@{first(body('RunQueryGraph')?['firstTableRows'])?['[TotalOnProcess]']}</div>
+          <div style="font-size:11.5px;color:#B71C1C;font-weight:bold;">ON PROCESS รวม</div>
+        </td>
+        <td width="2%"></td>
+        <td width="32%" align="center" style="padding:12px 4px;background-color:#FDF0E5;border-radius:6px;">
+          <div style="font-size:32px;font-weight:bold;color:#ED7D31;line-height:1.1;">@{first(body('RunQueryGraph')?['firstTableRows'])?['[OverCount]']}</div>
+          <div style="font-size:11.5px;color:#C55A11;font-weight:bold;">OVER 3 DAYS</div>
+        </td>
+        <td width="2%"></td>
+        <td width="32%" align="center" style="padding:12px 4px;background-color:#EBF1FA;border-radius:6px;">
+          <div style="font-size:32px;font-weight:bold;color:#4472C4;line-height:1.1;">@{first(body('RunQueryGraph')?['firstTableRows'])?['[WithinCount]']}</div>
+          <div style="font-size:11.5px;color:#2F5597;font-weight:bold;">WITHIN 0-3 DAYS</div>
+        </td>
+      </tr>
+    </table>
+    <table cellpadding="0" cellspacing="0" width="100%" style="margin:14px 0 5px 0;">
+      <tr>
+        <td bgcolor="#ED7D31" width="@{first(body('RunQueryGraph')?['firstTableRows'])?['[OverPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td>
+        <td bgcolor="#4472C4" width="@{first(body('RunQueryGraph')?['firstTableRows'])?['[WithinPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td>
+      </tr>
+    </table>
+    <p style="margin:0 0 14px 0;font-size:11.5px;color:#777777;">
+      <span style="color:#ED7D31;">&#9632;</span> Over 3 Days @{first(body('RunQueryGraph')?['firstTableRows'])?['[OverPct]']}%
+      &nbsp;&nbsp;<span style="color:#4472C4;">&#9632;</span> Within 0-3 Days @{first(body('RunQueryGraph')?['firstTableRows'])?['[WithinPct]']}%
+    </p>
+    <p style="margin:0 0 7px 0;font-size:12.5px;font-weight:bold;color:#333333;">ค้างราย Region (On process)</p>
+    <table cellpadding="0" cellspacing="0" width="100%">@{first(body('RunQueryGraph')?['firstTableRows'])?['[CatBars]']}</table>
+  </td></tr>
+</table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(7) SendEmailOnProcess
+Subject: @{outputs('ComposeTotalCount')} Site Incident / Site pending ticket / Site access issue  (OnProcess)
+Body:
+สวัสดีครับ 😊
+URL WebAppSiteIncident: @{concat('<a href="https://org9be037e2.crm5.dynamics.com/apps/IncidentWebApp">','IncidentWebApp','</a>')}
+รบกวนทีมงานเร่งเข้ามาปิดงานให้เรียบร้อย ทั้งนี้ Email ฉบับนี้เป็นการส่งอัตโนมัติ ไม่ต้องตอบกลับ@{outputs('ComposeGraph')}
+ตารางนี้คือ Site Incident / Site pending ticket ที่เป็น OnProcess
+Total On Process: @{outputs('ComposeTotalCount')}@{replace(replace(replace(outputs('ComposeCSS'),'&lt;','<'),'&gt;','>'),'&quot;','"')}	
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[7] SendEmailClosed
+Subject: Site Incident / Site pending ticket / Site access issue (Closed)
+Body:
+สวัสดีครับทุกท่าน
+URL WebAppSiteIncident: @{concat('<a href="https://org9be037e2.crm5.dynamics.com/apps/IncidentWebApp">','IncidentWebApp','</a>')}
+Site Incident / Site pending ticket (Close) วันนี้ไม่มี Job คงค้างครับ
+ขอบคุณครับ
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+

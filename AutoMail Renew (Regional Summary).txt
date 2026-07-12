@@ -1,0 +1,542 @@
+[1] GetData: POWER BI AGAINST: Nulls included = Yes
+EVALUATE
+VAR R1_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"} && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R1")
+VAR R1_On_ = COUNTROWS(FILTER(R1_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="On Process")) + 0
+VAR R1_En_ = COUNTROWS(FILTER(R1_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Engagement")) + 0
+VAR R1_Pay_ = COUNTROWS(FILTER(R1_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Payment")) + 0
+VAR R1_Total_ = COUNTROWS(R1_) + 0
+VAR R2_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"} && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R2")
+VAR R2_On_ = COUNTROWS(FILTER(R2_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="On Process")) + 0
+VAR R2_En_ = COUNTROWS(FILTER(R2_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Engagement")) + 0
+VAR R2_Pay_ = COUNTROWS(FILTER(R2_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Payment")) + 0
+VAR R2_Total_ = COUNTROWS(R2_) + 0
+VAR R3_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"} && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R3")
+VAR R3_On_ = COUNTROWS(FILTER(R3_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="On Process")) + 0
+VAR R3_En_ = COUNTROWS(FILTER(R3_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Engagement")) + 0
+VAR R3_Pay_ = COUNTROWS(FILTER(R3_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Payment")) + 0
+VAR R3_Total_ = COUNTROWS(R3_) + 0
+VAR R4_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"} && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R4")
+VAR R4_On_ = COUNTROWS(FILTER(R4_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="On Process")) + 0
+VAR R4_En_ = COUNTROWS(FILTER(R4_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Engagement")) + 0
+VAR R4_Pay_ = COUNTROWS(FILTER(R4_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Payment")) + 0
+VAR R4_Total_ = COUNTROWS(R4_) + 0
+VAR R5_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"} && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R5")
+VAR R5_On_ = COUNTROWS(FILTER(R5_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="On Process")) + 0
+VAR R5_En_ = COUNTROWS(FILTER(R5_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Engagement")) + 0
+VAR R5_Pay_ = COUNTROWS(FILTER(R5_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Payment")) + 0
+VAR R5_Total_ = COUNTROWS(R5_) + 0
+VAR R6_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"} && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R6")
+VAR R6_On_ = COUNTROWS(FILTER(R6_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="On Process")) + 0
+VAR R6_En_ = COUNTROWS(FILTER(R6_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Engagement")) + 0
+VAR R6_Pay_ = COUNTROWS(FILTER(R6_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Payment")) + 0
+VAR R6_Total_ = COUNTROWS(R6_) + 0
+VAR R7_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"} && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R7")
+VAR R7_On_ = COUNTROWS(FILTER(R7_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="On Process")) + 0
+VAR R7_En_ = COUNTROWS(FILTER(R7_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Engagement")) + 0
+VAR R7_Pay_ = COUNTROWS(FILTER(R7_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Payment")) + 0
+VAR R7_Total_ = COUNTROWS(R7_) + 0
+VAR R8_ = FILTER('RENEW CONTRACT TASK [NEW LOCATION]', 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"} && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R8")
+VAR R8_On_ = COUNTROWS(FILTER(R8_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="On Process")) + 0
+VAR R8_En_ = COUNTROWS(FILTER(R8_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Engagement")) + 0
+VAR R8_Pay_ = COUNTROWS(FILTER(R8_, 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26]="Payment")) + 0
+VAR R8_Total_ = COUNTROWS(R8_) + 0
+VAR Grand_On_ = R1_On_ + R2_On_ + R3_On_ + R4_On_ + R5_On_ + R6_On_ + R7_On_ + R8_On_
+VAR Grand_En_ = R1_En_ + R2_En_ + R3_En_ + R4_En_ + R5_En_ + R6_En_ + R7_En_ + R8_En_
+VAR Grand_Pay_ = R1_Pay_ + R2_Pay_ + R3_Pay_ + R4_Pay_ + R5_Pay_ + R6_Pay_ + R7_Pay_ + R8_Pay_
+VAR Grand_Total_ = Grand_On_ + Grand_En_ + Grand_Pay_
+VAR LastUpdated_ = FORMAT(MAXX(FILTER('RENEW CONTRACT TASK [NEW LOCATION]', 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"}), 'RENEW CONTRACT TASK [NEW LOCATION]'[UPDATED_DATE]), "dd/MM/yyyy HH:mm:ss")
+RETURN
+    ROW(
+        "META_LAST_UPDATED", LastUpdated_,
+        "META_ROWCOUNT", Grand_Total_,
+        "Grand_On", Grand_On_,
+        "Grand_En", Grand_En_,
+        "Grand_Pay", Grand_Pay_,
+        "Grand_OnPct", FORMAT(ROUND(DIVIDE(100 * Grand_On_, Grand_Total_), 1), "0.0"),
+        "Grand_EnPct", FORMAT(ROUND(DIVIDE(100 * Grand_En_, Grand_Total_), 1), "0.0"),
+        "Grand_PayPct", FORMAT(ROUND(DIVIDE(100 * Grand_Pay_, Grand_Total_), 1), "0.0"),
+        "R1_On", R1_On_,
+        "R1_En", R1_En_,
+        "R1_Pay", R1_Pay_,
+        "R1_Total", R1_Total_,
+        "R2_On", R2_On_,
+        "R2_En", R2_En_,
+        "R2_Pay", R2_Pay_,
+        "R2_Total", R2_Total_,
+        "R3_On", R3_On_,
+        "R3_En", R3_En_,
+        "R3_Pay", R3_Pay_,
+        "R3_Total", R3_Total_,
+        "R4_On", R4_On_,
+        "R4_En", R4_En_,
+        "R4_Pay", R4_Pay_,
+        "R4_Total", R4_Total_,
+        "R5_On", R5_On_,
+        "R5_En", R5_En_,
+        "R5_Pay", R5_Pay_,
+        "R5_Total", R5_Total_,
+        "R6_On", R6_On_,
+        "R6_En", R6_En_,
+        "R6_Pay", R6_Pay_,
+        "R6_Total", R6_Total_,
+        "R7_On", R7_On_,
+        "R7_En", R7_En_,
+        "R7_Pay", R7_Pay_,
+        "R7_Total", R7_Total_,
+        "R8_On", R8_On_,
+        "R8_En", R8_En_,
+        "R8_Pay", R8_Pay_,
+        "R8_Total", R8_Total_
+    )
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[2] GetDetailR1: POWER BI AGAINST: Nulls included = Yes
+EVALUATE
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"}
+        && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R1"
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "c2", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "c3", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "c4", 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE],
+        "c5", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "c6", 'RENEW CONTRACT TASK [NEW LOCATION]'[ASSIGN_STATUS],
+        "c7", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "c8", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_STATUS],
+        "c9", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "c12", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "c13", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "c14", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "c15", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "c16", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "c17", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "c18", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "c19", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_CORPORATE],
+        "c20", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_NODE_TOPOLOGY],
+        "c21", 'RENEW CONTRACT TASK [NEW LOCATION]'[BEST_GRADE],
+        "c22", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "c23", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "c24", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+ORDER BY [c3]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3] GetDetailR2
+EVALUATE
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"}
+        && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R2"
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "c2", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "c3", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "c4", 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE],
+        "c5", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "c6", 'RENEW CONTRACT TASK [NEW LOCATION]'[ASSIGN_STATUS],
+        "c7", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "c8", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_STATUS],
+        "c9", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "c12", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "c13", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "c14", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "c15", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "c16", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "c17", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "c18", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "c19", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_CORPORATE],
+        "c20", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_NODE_TOPOLOGY],
+        "c21", 'RENEW CONTRACT TASK [NEW LOCATION]'[BEST_GRADE],
+        "c22", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "c23", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "c24", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+ORDER BY [c3]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[4] GetDetailR3
+EVALUATE
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"}
+        && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R3"
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "c2", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "c3", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "c4", 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE],
+        "c5", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "c6", 'RENEW CONTRACT TASK [NEW LOCATION]'[ASSIGN_STATUS],
+        "c7", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "c8", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_STATUS],
+        "c9", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "c12", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "c13", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "c14", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "c15", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "c16", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "c17", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "c18", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "c19", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_CORPORATE],
+        "c20", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_NODE_TOPOLOGY],
+        "c21", 'RENEW CONTRACT TASK [NEW LOCATION]'[BEST_GRADE],
+        "c22", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "c23", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "c24", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+ORDER BY [c3]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[5] GetDetailR4
+EVALUATE
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"}
+        && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R4"
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "c2", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "c3", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "c4", 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE],
+        "c5", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "c6", 'RENEW CONTRACT TASK [NEW LOCATION]'[ASSIGN_STATUS],
+        "c7", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "c8", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_STATUS],
+        "c9", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "c12", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "c13", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "c14", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "c15", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "c16", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "c17", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "c18", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "c19", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_CORPORATE],
+        "c20", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_NODE_TOPOLOGY],
+        "c21", 'RENEW CONTRACT TASK [NEW LOCATION]'[BEST_GRADE],
+        "c22", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "c23", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "c24", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+ORDER BY [c3]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[6] GetDetailR5
+EVALUATE
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"}
+        && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R5"
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "c2", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "c3", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "c4", 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE],
+        "c5", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "c6", 'RENEW CONTRACT TASK [NEW LOCATION]'[ASSIGN_STATUS],
+        "c7", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "c8", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_STATUS],
+        "c9", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "c12", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "c13", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "c14", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "c15", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "c16", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "c17", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "c18", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "c19", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_CORPORATE],
+        "c20", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_NODE_TOPOLOGY],
+        "c21", 'RENEW CONTRACT TASK [NEW LOCATION]'[BEST_GRADE],
+        "c22", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "c23", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "c24", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+ORDER BY [c3]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[7] GetDetailR6
+EVALUATE
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"}
+        && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R6"
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "c2", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "c3", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "c4", 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE],
+        "c5", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "c6", 'RENEW CONTRACT TASK [NEW LOCATION]'[ASSIGN_STATUS],
+        "c7", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "c8", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_STATUS],
+        "c9", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "c12", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "c13", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "c14", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "c15", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "c16", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "c17", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "c18", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "c19", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_CORPORATE],
+        "c20", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_NODE_TOPOLOGY],
+        "c21", 'RENEW CONTRACT TASK [NEW LOCATION]'[BEST_GRADE],
+        "c22", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "c23", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "c24", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+ORDER BY [c3]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[8] GetDetailR7
+EVALUATE
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"}
+        && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R7"
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "c2", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "c3", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "c4", 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE],
+        "c5", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "c6", 'RENEW CONTRACT TASK [NEW LOCATION]'[ASSIGN_STATUS],
+        "c7", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "c8", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_STATUS],
+        "c9", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "c12", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "c13", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "c14", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "c15", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "c16", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "c17", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "c18", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "c19", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_CORPORATE],
+        "c20", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_NODE_TOPOLOGY],
+        "c21", 'RENEW CONTRACT TASK [NEW LOCATION]'[BEST_GRADE],
+        "c22", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "c23", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "c24", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+ORDER BY [c3]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[9] GetDetailR8
+EVALUATE
+VAR FilteredData_ =
+    FILTER(
+        'RENEW CONTRACT TASK [NEW LOCATION]',
+        'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26] IN {"On Process","Engagement","Payment"}
+        && 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE]="R8"
+    )
+RETURN
+    SELECTCOLUMNS(
+        FilteredData_,
+        "c1", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_ID],
+        "c2", 'RENEW CONTRACT TASK [NEW LOCATION]'[SAR_TASK_NO],
+        "c3", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOCATION_ID],
+        "c4", 'RENEW CONTRACT TASK [NEW LOCATION]'[REGIONAL_HEAD_CODE],
+        "c5", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUBCONTRACTOR],
+        "c6", 'RENEW CONTRACT TASK [NEW LOCATION]'[ASSIGN_STATUS],
+        "c7", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_CODE_LIST],
+        "c8", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_STATUS],
+        "c9", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_START_DATE], "yyyy-MM-dd"),
+        "c10", FORMAT('RENEW CONTRACT TASK [NEW LOCATION]'[OLD_CONTRACT_END_DATE], "yyyy-MM-dd"),
+        "c11", 'RENEW CONTRACT TASK [NEW LOCATION]'[OLD_COMPANY_NAME],
+        "c12", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_TYPE_EDIT],
+        "c13", 'RENEW CONTRACT TASK [NEW LOCATION]'[LOC_TYPE],
+        "c14", 'RENEW CONTRACT TASK [NEW LOCATION]'[TASK_STATUS],
+        "c15", 'RENEW CONTRACT TASK [NEW LOCATION]'[PC_STATUS],
+        "c16", 'RENEW CONTRACT TASK [NEW LOCATION]'[STEP_V3_Y26],
+        "c17", 'RENEW CONTRACT TASK [NEW LOCATION]'[GROUP],
+        "c18", 'RENEW CONTRACT TASK [NEW LOCATION]'[SUB_STAGE],
+        "c19", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_CORPORATE],
+        "c20", 'RENEW CONTRACT TASK [NEW LOCATION]'[SITE_NODE_TOPOLOGY],
+        "c21", 'RENEW CONTRACT TASK [NEW LOCATION]'[BEST_GRADE],
+        "c22", 'RENEW CONTRACT TASK [NEW LOCATION]'[BFKT],
+        "c23", 'RENEW CONTRACT TASK [NEW LOCATION]'[NEW_COMPANY_NAME],
+        "c24", 'RENEW CONTRACT TASK [NEW LOCATION]'[Risk_Analysis]
+    )
+ORDER BY [c3]
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[10] WriteChunk1
+File: RENEWAL_Regional_XL_LIVE.xlsx
+Script: EXCEL_REGIONAL
+ScriptParameters/rowsJson: string(take(body('GetDetailR1')?['firstTableRows'], 4676))
+ScriptParameters/chunkIndex: 0
+ScriptParameters/isLastChunk: No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[11] WriteChunk2
+ScriptParameters/rowsJson: string(take(body('GetDetailR2')?['firstTableRows'], 12000))
+ScriptParameters/chunkIndex: 1
+ScriptParameters/isLastChunk: No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[12] WriteChunk3
+ScriptParameters/rowsJson: string(take(skip(body('GetDetailR2')?['firstTableRows'], 12000), 9046))
+ScriptParameters/chunkIndex: 2
+ScriptParameters/isLastChunk: No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[13] WriteChunk4
+ScriptParameters/rowsJson: string(take(body('GetDetailR3')?['firstTableRows'], 9507))
+ScriptParameters/chunkIndex: 3
+ScriptParameters/isLastChunk: No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[14] WriteChunk5
+ScriptParameters/rowsJson: string(take(body('GetDetailR4')?['firstTableRows'], 10819))
+ScriptParameters/chunkIndex: 4
+ScriptParameters/isLastChunk: No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[15] WriteChunk6
+ScriptParameters/rowsJson: string(take(body('GetDetailR5')?['firstTableRows'], 6177))
+ScriptParameters/chunkIndex: 5
+ScriptParameters/isLastChunk: No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[16] WriteChunk7
+ScriptParameters/rowsJson: string(take(body('GetDetailR6')?['firstTableRows'], 8161))
+ScriptParameters/chunkIndex: 6
+ScriptParameters/isLastChunk: No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[17] WriteChunk8
+ScriptParameters/rowsJson: string(take(body('GetDetailR7')?['firstTableRows'], 12000))
+ScriptParameters/chunkIndex: 7
+ScriptParameters/isLastChunk: No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[18] WriteChunk9
+ScriptParameters/rowsJson: string(take(skip(body('GetDetailR7')?['firstTableRows'], 12000), 904))
+ScriptParameters/chunkIndex: 8
+ScriptParameters/isLastChunk: No
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[19] WriteChunk10
+ScriptParameters/rowsJson: string(take(body('GetDetailR8')?['firstTableRows'], 11288))
+ScriptParameters/chunkIndex: 9
+ScriptParameters/isLastChunk: Yes
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[20] GetFileContent
+อ่านไฟล์ RENEWAL_Regional_XL_LIVE.xlsx กลับมาเป็น bytes
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[21] ComposeFileB64
+Inputs: base64(body('GetFileContent'))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[22] ComposeEmailBody
+Inputs:
+<table cellpadding="0" cellspacing="0" width="640" align="left" style="background-color:#ffffff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;">
+<tr><td>
+
+  <div style="font-size:20px;font-weight:bold;color:#222222;">RENEWAL Export — Regional Summary V2 (ทดสอบ 100k)</div>
+  <div style="font-size:14px;color:#444444;margin-top:6px;">Stage: On Process / Engagement / Payment — ไม่กรองปี (ทุกช่วงเวลา)</div>
+  <p style="margin:10px 0 20px 0;font-size:12px;color:#888888;">
+    ข้อมูล ณ @{first(body('GetData')?['firstTableRows'])?['[META_LAST_UPDATED]']}
+  </p>
+
+  <table cellpadding="0" cellspacing="0" width="100%">
+    <tr>
+      <td width="32%" align="center" style="padding:12px 4px;background-color:#FDECEA;border-radius:6px;">
+              <div style="font-size:32px;font-weight:bold;color:#D32F2F;line-height:1.1;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_On]'], '#,##0')}</div>
+              <div style="font-size:11.5px;color:#B71C1C;font-weight:bold;text-transform:uppercase;">On Process</div>
+            </td>
+      <td width="2%"></td>
+      <td width="32%" align="center" style="padding:12px 4px;background-color:#FDF0E5;border-radius:6px;">
+              <div style="font-size:32px;font-weight:bold;color:#ED7D31;line-height:1.1;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_En]'], '#,##0')}</div>
+              <div style="font-size:11.5px;color:#C55A11;font-weight:bold;text-transform:uppercase;">Engagement</div>
+            </td>
+      <td width="2%"></td>
+      <td width="32%" align="center" style="padding:12px 4px;background-color:#E2EFDA;border-radius:6px;">
+              <div style="font-size:32px;font-weight:bold;color:#70AD47;line-height:1.1;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_Pay]'], '#,##0')}</div>
+              <div style="font-size:11.5px;color:#548235;font-weight:bold;text-transform:uppercase;">Payment</div>
+            </td>
+    </tr>
+  </table>
+
+  <table cellpadding="0" cellspacing="0" width="100%" style="margin:14px 0 5px 0;">
+    <tr>
+      <td bgcolor="#C00000" width="@{first(body('GetData')?['firstTableRows'])?['[Grand_OnPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td><td bgcolor="#ED7D31" width="@{first(body('GetData')?['firstTableRows'])?['[Grand_EnPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td><td bgcolor="#70AD47" width="@{first(body('GetData')?['firstTableRows'])?['[Grand_PayPct]']}%" style="font-size:6px;line-height:12px;">&nbsp;</td>
+    </tr>
+  </table>
+  <p style="margin:0 0 14px 0;font-size:11.5px;color:#777777;">
+    <span style="color:#C00000;">&#9632;</span> On Process @{first(body('GetData')?['firstTableRows'])?['[Grand_OnPct]']}%&nbsp;&nbsp;<span style="color:#ED7D31;">&#9632;</span> Engagement @{first(body('GetData')?['firstTableRows'])?['[Grand_EnPct]']}%&nbsp;&nbsp;<span style="color:#70AD47;">&#9632;</span> Payment @{first(body('GetData')?['firstTableRows'])?['[Grand_PayPct]']}%
+  </p>
+
+  <div style="border-top:1px solid #E0E0E0;margin-top:20px;padding-top:16px;">
+    <p style="margin:0 0 10px 0;font-size:13px;font-weight:bold;color:#222222;">สรุปราย Region</p>
+    <table cellpadding="0" cellspacing="0" width="100%" style="border-collapse:collapse;font-size:12px;">
+      <tr>
+        <th style="background:#F2F2F2;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;text-align:left;">Region</th>
+        <th style="background:#FBE5E5;color:#C00000;padding:6px 8px;border:1px solid #CCCCCC;text-align:right;">On Process</th><th style="background:#FDEBDD;color:#ED7D31;padding:6px 8px;border:1px solid #CCCCCC;text-align:right;">Engagement</th><th style="background:#E5F0DD;color:#70AD47;padding:6px 8px;border:1px solid #CCCCCC;text-align:right;">Payment</th>
+        <th style="background:#F2F2F2;color:#222222;padding:6px 8px;border:1px solid #CCCCCC;text-align:right;">รวม</th>
+      </tr>
+      <tr><td style="padding:5px 8px;border:1px solid #EEEEEE;">R1</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R1_On]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R1_En]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R1_Pay]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;font-weight:bold;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R1_Total]'], '#,##0')}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #EEEEEE;">R2</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R2_On]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R2_En]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R2_Pay]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;font-weight:bold;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R2_Total]'], '#,##0')}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #EEEEEE;">R3</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R3_On]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R3_En]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R3_Pay]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;font-weight:bold;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R3_Total]'], '#,##0')}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #EEEEEE;">R4</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R4_On]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R4_En]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R4_Pay]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;font-weight:bold;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R4_Total]'], '#,##0')}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #EEEEEE;">R5</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R5_On]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R5_En]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R5_Pay]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;font-weight:bold;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R5_Total]'], '#,##0')}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #EEEEEE;">R6</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R6_On]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R6_En]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R6_Pay]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;font-weight:bold;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R6_Total]'], '#,##0')}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #EEEEEE;">R7</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R7_On]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R7_En]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R7_Pay]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;font-weight:bold;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R7_Total]'], '#,##0')}</td></tr>
+      <tr><td style="padding:5px 8px;border:1px solid #EEEEEE;">R8</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R8_On]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R8_En]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R8_Pay]'], '#,##0')}</td><td style="padding:5px 8px;border:1px solid #EEEEEE;text-align:right;font-weight:bold;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[R8_Total]'], '#,##0')}</td></tr>
+      <tr style="font-weight:bold;border-top:2px solid #222222;">
+        <td style="padding:6px 8px;border:1px solid #EEEEEE;">รวมทั้งหมด</td>
+        <td style="padding:6px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_On]'], '#,##0')}</td><td style="padding:6px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_En]'], '#,##0')}</td><td style="padding:6px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[Grand_Pay]'], '#,##0')}</td>
+        <td style="padding:6px 8px;border:1px solid #EEEEEE;text-align:right;">@{formatNumber(first(body('GetData')?['firstTableRows'])?['[META_ROWCOUNT]'], '#,##0')}</td>
+      </tr>
+    </table>
+  </div>
+  <p style="margin:8px 0 0 0;font-size:11.5px;color:#888888;">ไฟล์: @{formatNumber(div(float(length(outputs('ComposeFileB64'))), 1398101.333), '#,##0.0')} MB · @{formatNumber(first(body('GetData')?['firstTableRows'])?['[META_ROWCOUNT]'], '#,##0')} แถว (8 region คงที่ R1-R8 — 2 แถวที่ REGIONAL_HEAD_CODE ว่างไม่รวมในไฟล์นี้)</p>
+
+  <p style="margin:14px 0 0 0;font-size:12px;color:#888888;">
+    <b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ (ทดสอบ ROUND 11 CHALLENGE) กรุณาอย่าตอบกลับ
+  </p>
+
+</td></tr>
+</table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[23] CheckFileSize
+div(mul(length(outputs('ComposeFileB64')),3),4) is less or equal to 15728640
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[24] IF TRUE: SendEmailAttach
+Subject: concat('[TEST] RENEWAL Export — Regional Summary V2: ', string(first(body('GetData')?['firstTableRows'])?['[META_ROWCOUNT]']))
+Body: concat(outputs('ComposeEmailBody'), '<p style="margin:10px 0 0 0;font-size:11.5px;color:#548235;">ไฟล์แนบอยู่ด้านล่างอีเมลนี้ (ขนาด ≤15MB)</p>')
+Name - 1: concat('RENEWAL_Regional_XL_', formatDateTime(convertTimeZone(utcNow(),'UTC','SE Asia Standard Time'),'yyyyMMdd_HHmm'), '.xlsx')
+Content - 1: outputs('ComposeFileB64')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[25] IF FALSE: CreateShareLink
+File:
+Link type: View
+Link scope: Organization
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(1) SendEmailLink
+Subject: concat('[TEST] RENEWAL Export — Regional Summary V2: ', string(first(body('GetData')?['firstTableRows'])?['[META_ROWCOUNT]']))
+Body: concat(outputs('ComposeEmailBody'), '<p style="margin:10px 0 0 0;font-size:11.5px;color:#C00000;">ไฟล์มีขนาดใหญ่เกิน 15MB — ดาวน์โหลดได้ที่ลิงก์นี้ (คนในองค์กรเท่านั้น): <a href="', body('CreateShareLink')?['WebUrl'], '">เปิดไฟล์ RENEWAL_Regional_XL.xlsx</a></p>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

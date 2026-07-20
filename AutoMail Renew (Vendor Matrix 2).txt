@@ -1,0 +1,1165 @@
+[1] InitDateFrom
+Name: InitDateFrom
+Type: String
+Value: 2025-01-01
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[2] InitDateTo
+Name: InitDateTo
+Type: String
+Value: 2026-12-31
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[3] Parallel
+(1) GetFileId2025: File Path: /RENEWAL_VendorMatrix_2025.xlsx
+(2) GetFileId2026: File Path: /RENEWAL_VendorMatrix_2026.xlsx
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[4] Q MATRIX GRAND: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ = FILTER(''RENEW CONTRACT TASK'', ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_)
+RETURN
+ROW(
+    "n_NoAssign", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]=" No Assign")) + 0,
+        "n_BDT", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="BD&T")) + 0,
+        "n_Other", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="Other")) + 0,
+        "n_UNI", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="UNI")) + 0,
+        "n_WW", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="W&W")) + 0,
+        "n_NGTrue", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="NG_True")) + 0,
+        "n_NGCDC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="NG_CDC")) + 0,
+        "n_BBTEC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="BBTEC")) + 0,
+    "n_Total", COUNTROWS(Filtered_) + 0,
+    "LastData", FORMAT(MAX(''RENEW CONTRACT TASK''[UPDATED_DATE]), "dd/MM/yyyy HH:mm")
+)')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[5] Q MATRIX SUB Y1: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR Filtered_ = FILTER(''RENEW CONTRACT TASK'', ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_)
+VAR RowGroups_ = SUMMARIZE(Filtered_, ''RENEW CONTRACT TASK''[Sort_Step_V3], ''RENEW CONTRACT TASK''[STEP_V3_Y26], ''RENEW CONTRACT TASK''[GROUP], ''RENEW CONTRACT TASK''[SUB_STAGE], ''RENEW CONTRACT TASK''[RESPONSIBLE])
+RETURN
+ADDCOLUMNS(
+    RowGroups_,
+    "n_NoAssign", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]=" No Assign")) + 0,
+        "n_BDT", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="BD&T")) + 0,
+        "n_Other", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="Other")) + 0,
+        "n_UNI", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="UNI")) + 0,
+        "n_WW", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="W&W")) + 0,
+        "n_NGTrue", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="NG_True")) + 0,
+        "n_NGCDC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="NG_CDC")) + 0,
+        "n_BBTEC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="BBTEC")) + 0,
+    "n_Total", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]))) + 0
+)
+ORDER BY [Sort_Step_V3], [GROUP], [SUB_STAGE]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[6] Q MATRIX STEP Y1: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR Filtered_ = FILTER(''RENEW CONTRACT TASK'', ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_)
+VAR StepGroups_ = SUMMARIZE(Filtered_, ''RENEW CONTRACT TASK''[Sort_Step_V3], ''RENEW CONTRACT TASK''[STEP_V3_Y26])
+RETURN
+ADDCOLUMNS(
+    StepGroups_,
+    "n_NoAssign", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]=" No Assign")) + 0,
+        "n_BDT", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="BD&T")) + 0,
+        "n_Other", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="Other")) + 0,
+        "n_UNI", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="UNI")) + 0,
+        "n_WW", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="W&W")) + 0,
+        "n_NGTrue", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="NG_True")) + 0,
+        "n_NGCDC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="NG_CDC")) + 0,
+        "n_BBTEC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="BBTEC")) + 0,
+    "n_Total", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]))) + 0
+)
+ORDER BY [Sort_Step_V3]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[7] Q MATRIX GRAND Y1
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR Filtered_ = FILTER(''RENEW CONTRACT TASK'', ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_)
+RETURN
+ROW(
+    "n_NoAssign", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]=" No Assign")) + 0,
+        "n_BDT", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="BD&T")) + 0,
+        "n_Other", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="Other")) + 0,
+        "n_UNI", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="UNI")) + 0,
+        "n_WW", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="W&W")) + 0,
+        "n_NGTrue", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="NG_True")) + 0,
+        "n_NGCDC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="NG_CDC")) + 0,
+        "n_BBTEC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="BBTEC")) + 0,
+    "n_Total", COUNTROWS(Filtered_) + 0
+)')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[8] FilterStage OnProcess Y1
+From: body('Q_MATRIX_SUB_Y1')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to On Process
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[9] FilterStepStage OnProcess Y1
+From: body('Q_MATRIX_STEP_Y1')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to On Process
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[10] SelectStage OnProcess Y1
+From: body('FilterStage_OnProcess_Y1')
+Map: concat('<tr style="background:#FFFFFF;"><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[GROUP]'], '</td><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[SUB_STAGE]'], '<br><span style="color:#999;font-size:10px;">', item()?['RENEW CONTRACT TASK[RESPONSIBLE]'], '</span></td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NoAssign]']), 0), '', formatNumber(int(item()?['[n_NoAssign]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BDT]']), 0), '', formatNumber(int(item()?['[n_BDT]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_Other]']), 0), '', formatNumber(int(item()?['[n_Other]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_UNI]']), 0), '', formatNumber(int(item()?['[n_UNI]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_WW]']), 0), '', formatNumber(int(item()?['[n_WW]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGTrue]']), 0), '', formatNumber(int(item()?['[n_NGTrue]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGCDC]']), 0), '', formatNumber(int(item()?['[n_NGCDC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BBTEC]']), 0), '', formatNumber(int(item()?['[n_BBTEC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FAFAFA;font-weight:bold;color:#222222;">', if(equals(int(item()?['[n_Total]']), 0), '', formatNumber(int(item()?['[n_Total]']), '#,##0')), '</td>', '</tr>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[11] ComposeStage OnProcess Y1
+Inputs: concat(concat('<tr><td colspan="2" valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;font-weight:bold;color:#D32F2F;background:#FDECEA;">Total On Process</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_NoAssign]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_NoAssign]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_BDT]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_BDT]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_Other]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_Other]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_UNI]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_UNI]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_WW]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_WW]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_NGTrue]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_NGTrue]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_NGCDC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_NGCDC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_BBTEC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_BBTEC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_Total]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y1'))?['[n_Total]'], 0)), '#,##0')), '</td></tr>'), join(body('SelectStage_OnProcess_Y1'), ''))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[12] FilterStage Engagement Y1
+From: body('Q_MATRIX_SUB_Y1')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to Engagement
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[13] FilterStepStage Engagement Y1
+From: body('Q_MATRIX_STEP_Y1')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to Engagement
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[14] SelectStage Engagement Y1
+From: body('FilterStage_Engagement_Y1')
+Map: concat('<tr style="background:#FFFFFF;"><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[GROUP]'], '</td><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[SUB_STAGE]'], '<br><span style="color:#999;font-size:10px;">', item()?['RENEW CONTRACT TASK[RESPONSIBLE]'], '</span></td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NoAssign]']), 0), '', formatNumber(int(item()?['[n_NoAssign]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BDT]']), 0), '', formatNumber(int(item()?['[n_BDT]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_Other]']), 0), '', formatNumber(int(item()?['[n_Other]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_UNI]']), 0), '', formatNumber(int(item()?['[n_UNI]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_WW]']), 0), '', formatNumber(int(item()?['[n_WW]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGTrue]']), 0), '', formatNumber(int(item()?['[n_NGTrue]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGCDC]']), 0), '', formatNumber(int(item()?['[n_NGCDC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BBTEC]']), 0), '', formatNumber(int(item()?['[n_BBTEC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FAFAFA;font-weight:bold;color:#222222;">', if(equals(int(item()?['[n_Total]']), 0), '', formatNumber(int(item()?['[n_Total]']), '#,##0')), '</td>', '</tr>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[15] ComposeStage Engagement Y1
+Inputs: concat(concat('<tr><td colspan="2" valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;font-weight:bold;color:#ED7D31;background:#FDF0E5;">Total Engagement</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_NoAssign]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_NoAssign]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_BDT]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_BDT]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_Other]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_Other]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_UNI]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_UNI]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_WW]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_WW]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_NGTrue]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_NGTrue]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_NGCDC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_NGCDC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_BBTEC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_BBTEC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_Total]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y1'))?['[n_Total]'], 0)), '#,##0')), '</td></tr>'), join(body('SelectStage_Engagement_Y1'), ''))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[16] FilterStage Payment Y1
+From: body('Q_MATRIX_SUB_Y1')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to Payment
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[17] FilterStepStage Payment Y1
+From: body('Q_MATRIX_STEP_Y1')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to Payment
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[18] SelectStage Payment Y1
+From: body('FilterStage_Payment_Y1')
+Map: concat('<tr style="background:#FFFFFF;"><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[GROUP]'], '</td><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[SUB_STAGE]'], '<br><span style="color:#999;font-size:10px;">', item()?['RENEW CONTRACT TASK[RESPONSIBLE]'], '</span></td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NoAssign]']), 0), '', formatNumber(int(item()?['[n_NoAssign]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BDT]']), 0), '', formatNumber(int(item()?['[n_BDT]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_Other]']), 0), '', formatNumber(int(item()?['[n_Other]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_UNI]']), 0), '', formatNumber(int(item()?['[n_UNI]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_WW]']), 0), '', formatNumber(int(item()?['[n_WW]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGTrue]']), 0), '', formatNumber(int(item()?['[n_NGTrue]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGCDC]']), 0), '', formatNumber(int(item()?['[n_NGCDC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BBTEC]']), 0), '', formatNumber(int(item()?['[n_BBTEC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FAFAFA;font-weight:bold;color:#222222;">', if(equals(int(item()?['[n_Total]']), 0), '', formatNumber(int(item()?['[n_Total]']), '#,##0')), '</td>', '</tr>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[19] ComposeStage Payment Y1
+Inputs: concat(concat('<tr><td colspan="2" valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;font-weight:bold;color:#70AD47;background:#E2EFDA;">Total Payment</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_NoAssign]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_NoAssign]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_BDT]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_BDT]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_Other]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_Other]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_UNI]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_UNI]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_WW]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_WW]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_NGTrue]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_NGTrue]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_NGCDC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_NGCDC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_BBTEC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_BBTEC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_Total]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y1'))?['[n_Total]'], 0)), '#,##0')), '</td></tr>'), join(body('SelectStage_Payment_Y1'), ''))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[20] ComposeGrandRow Y1
+Inputs: concat('<tr><td colspan="2" valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;font-weight:bold;color:#FFFFFF;background:#C00000;">GRAND TOTAL</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_NoAssign]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_NoAssign]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_BDT]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_BDT]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_Other]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_Other]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_UNI]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_UNI]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_WW]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_WW]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_NGTrue]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_NGTrue]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_NGCDC]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_NGCDC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_BBTEC]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_BBTEC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_Total]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_Total]']), '#,##0')), '</td></tr>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[21] ComposeMatrixHTML Y1
+Inputs: concat(outputs('ComposeStage_OnProcess_Y1'), outputs('ComposeStage_Engagement_Y1'), outputs('ComposeStage_Payment_Y1'), outputs('ComposeGrandRow_Y1'))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[22] Q MATRIX SUB Y2: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ = FILTER(''RENEW CONTRACT TASK'', ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_)
+VAR RowGroups_ = SUMMARIZE(Filtered_, ''RENEW CONTRACT TASK''[Sort_Step_V3], ''RENEW CONTRACT TASK''[STEP_V3_Y26], ''RENEW CONTRACT TASK''[GROUP], ''RENEW CONTRACT TASK''[SUB_STAGE], ''RENEW CONTRACT TASK''[RESPONSIBLE])
+RETURN
+ADDCOLUMNS(
+    RowGroups_,
+    "n_NoAssign", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]=" No Assign")) + 0,
+        "n_BDT", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="BD&T")) + 0,
+        "n_Other", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="Other")) + 0,
+        "n_UNI", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="UNI")) + 0,
+        "n_WW", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="W&W")) + 0,
+        "n_NGTrue", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="NG_True")) + 0,
+        "n_NGCDC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="NG_CDC")) + 0,
+        "n_BBTEC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]) && ''RENEW CONTRACT TASK''[Sub_New]="BBTEC")) + 0,
+    "n_Total", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[GROUP]=EARLIER(''RENEW CONTRACT TASK''[GROUP]) && ''RENEW CONTRACT TASK''[SUB_STAGE]=EARLIER(''RENEW CONTRACT TASK''[SUB_STAGE]))) + 0
+)
+ORDER BY [Sort_Step_V3], [GROUP], [SUB_STAGE]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[23] Q MATRIX STEP Y2: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ = FILTER(''RENEW CONTRACT TASK'', ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_)
+VAR StepGroups_ = SUMMARIZE(Filtered_, ''RENEW CONTRACT TASK''[Sort_Step_V3], ''RENEW CONTRACT TASK''[STEP_V3_Y26])
+RETURN
+ADDCOLUMNS(
+    StepGroups_,
+    "n_NoAssign", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]=" No Assign")) + 0,
+        "n_BDT", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="BD&T")) + 0,
+        "n_Other", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="Other")) + 0,
+        "n_UNI", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="UNI")) + 0,
+        "n_WW", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="W&W")) + 0,
+        "n_NGTrue", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="NG_True")) + 0,
+        "n_NGCDC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="NG_CDC")) + 0,
+        "n_BBTEC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]) && ''RENEW CONTRACT TASK''[Sub_New]="BBTEC")) + 0,
+    "n_Total", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[STEP_V3_Y26]=EARLIER(''RENEW CONTRACT TASK''[STEP_V3_Y26]))) + 0
+)
+ORDER BY [Sort_Step_V3]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[24] Q MATRIX GRAND Y2: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ = FILTER(''RENEW CONTRACT TASK'', ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_ && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_)
+RETURN
+ROW(
+    "n_NoAssign", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]=" No Assign")) + 0,
+        "n_BDT", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="BD&T")) + 0,
+        "n_Other", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="Other")) + 0,
+        "n_UNI", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="UNI")) + 0,
+        "n_WW", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="W&W")) + 0,
+        "n_NGTrue", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="NG_True")) + 0,
+        "n_NGCDC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="NG_CDC")) + 0,
+        "n_BBTEC", COUNTROWS(FILTER(Filtered_, ''RENEW CONTRACT TASK''[Sub_New]="BBTEC")) + 0,
+    "n_Total", COUNTROWS(Filtered_) + 0
+)')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[25] FilterStage OnProcess Y2
+From: body('Q_MATRIX_SUB_Y2')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to On Process
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[26] FilterStepStage OnProcess Y2
+From: body('Q_MATRIX_STEP_Y2')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to On Process
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[27] SelectStage OnProcess Y2
+From: body('FilterStage_OnProcess_Y2')
+Map: concat('<tr style="background:#FFFFFF;"><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[GROUP]'], '</td><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[SUB_STAGE]'], '<br><span style="color:#999;font-size:10px;">', item()?['RENEW CONTRACT TASK[RESPONSIBLE]'], '</span></td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NoAssign]']), 0), '', formatNumber(int(item()?['[n_NoAssign]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BDT]']), 0), '', formatNumber(int(item()?['[n_BDT]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_Other]']), 0), '', formatNumber(int(item()?['[n_Other]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_UNI]']), 0), '', formatNumber(int(item()?['[n_UNI]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_WW]']), 0), '', formatNumber(int(item()?['[n_WW]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGTrue]']), 0), '', formatNumber(int(item()?['[n_NGTrue]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGCDC]']), 0), '', formatNumber(int(item()?['[n_NGCDC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BBTEC]']), 0), '', formatNumber(int(item()?['[n_BBTEC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FAFAFA;font-weight:bold;color:#222222;">', if(equals(int(item()?['[n_Total]']), 0), '', formatNumber(int(item()?['[n_Total]']), '#,##0')), '</td>', '</tr>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[28] ComposeStage OnProcess Y2
+Inputs: concat(concat('<tr><td colspan="2" valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;font-weight:bold;color:#D32F2F;background:#FDECEA;">Total On Process</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_NoAssign]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_NoAssign]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_BDT]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_BDT]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_Other]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_Other]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_UNI]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_UNI]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_WW]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_WW]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_NGTrue]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_NGTrue]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_NGCDC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_NGCDC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_BBTEC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_BBTEC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#D32F2F;background:#FDECEA;">', if(equals(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_Total]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_OnProcess_Y2'))?['[n_Total]'], 0)), '#,##0')), '</td></tr>'), join(body('SelectStage_OnProcess_Y2'), ''))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[29] FilterStage Engagement Y2
+From: body('Q_MATRIX_SUB_Y2')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to Engagement
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[30] FilterStepStage Engagement Y2
+From: body('Q_MATRIX_STEP_Y2')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to Engagement
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[31] SelectStage Engagement Y2
+From: body('FilterStage_Engagement_Y2')
+Map: concat('<tr style="background:#FFFFFF;"><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[GROUP]'], '</td><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[SUB_STAGE]'], '<br><span style="color:#999;font-size:10px;">', item()?['RENEW CONTRACT TASK[RESPONSIBLE]'], '</span></td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NoAssign]']), 0), '', formatNumber(int(item()?['[n_NoAssign]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BDT]']), 0), '', formatNumber(int(item()?['[n_BDT]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_Other]']), 0), '', formatNumber(int(item()?['[n_Other]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_UNI]']), 0), '', formatNumber(int(item()?['[n_UNI]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_WW]']), 0), '', formatNumber(int(item()?['[n_WW]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGTrue]']), 0), '', formatNumber(int(item()?['[n_NGTrue]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGCDC]']), 0), '', formatNumber(int(item()?['[n_NGCDC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BBTEC]']), 0), '', formatNumber(int(item()?['[n_BBTEC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FAFAFA;font-weight:bold;color:#222222;">', if(equals(int(item()?['[n_Total]']), 0), '', formatNumber(int(item()?['[n_Total]']), '#,##0')), '</td>', '</tr>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[32] ComposeStage Engagement Y2
+Inputs: concat(concat('<tr><td colspan="2" valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;font-weight:bold;color:#ED7D31;background:#FDF0E5;">Total Engagement</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_NoAssign]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_NoAssign]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_BDT]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_BDT]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_Other]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_Other]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_UNI]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_UNI]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_WW]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_WW]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_NGTrue]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_NGTrue]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_NGCDC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_NGCDC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_BBTEC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_BBTEC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#ED7D31;background:#FDF0E5;">', if(equals(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_Total]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Engagement_Y2'))?['[n_Total]'], 0)), '#,##0')), '</td></tr>'), join(body('SelectStage_Engagement_Y2'), ''))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[33] FilterStage Payment Y2
+From: body('Q_MATRIX_SUB_Y2')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to Payment
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[34] FilterStepStage Payment Y2
+From: body('Q_MATRIX_STEP_Y2')?['firstTableRows']
+Filter Query: item()?['RENEW CONTRACT TASK[STEP_V3_Y26]'] is equal to Payment
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[35] SelectStage Payment Y2
+From: body('FilterStage_Payment_Y2')
+Map: concat('<tr style="background:#FFFFFF;"><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[GROUP]'], '</td><td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:left;background:#FFFFFF;">', item()?['RENEW CONTRACT TASK[SUB_STAGE]'], '<br><span style="color:#999;font-size:10px;">', item()?['RENEW CONTRACT TASK[RESPONSIBLE]'], '</span></td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NoAssign]']), 0), '', formatNumber(int(item()?['[n_NoAssign]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BDT]']), 0), '', formatNumber(int(item()?['[n_BDT]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_Other]']), 0), '', formatNumber(int(item()?['[n_Other]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_UNI]']), 0), '', formatNumber(int(item()?['[n_UNI]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_WW]']), 0), '', formatNumber(int(item()?['[n_WW]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGTrue]']), 0), '', formatNumber(int(item()?['[n_NGTrue]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_NGCDC]']), 0), '', formatNumber(int(item()?['[n_NGCDC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FFFFFF;color:#222222;">', if(equals(int(item()?['[n_BBTEC]']), 0), '', formatNumber(int(item()?['[n_BBTEC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;background:#FAFAFA;font-weight:bold;color:#222222;">', if(equals(int(item()?['[n_Total]']), 0), '', formatNumber(int(item()?['[n_Total]']), '#,##0')), '</td>', '</tr>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[36] ComposeStage Payment Y2
+Inputs: concat(concat('<tr><td colspan="2" valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;font-weight:bold;color:#70AD47;background:#E2EFDA;">Total Payment</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_NoAssign]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_NoAssign]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_BDT]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_BDT]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_Other]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_Other]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_UNI]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_UNI]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_WW]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_WW]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_NGTrue]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_NGTrue]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_NGCDC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_NGCDC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_BBTEC]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_BBTEC]'], 0)), '#,##0')), '</td>', '<td valign="middle" style="padding:4px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#70AD47;background:#E2EFDA;">', if(equals(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_Total]'], 0)), 0), '', formatNumber(int(coalesce(first(body('FilterStepStage_Payment_Y2'))?['[n_Total]'], 0)), '#,##0')), '</td></tr>'), join(body('SelectStage_Payment_Y2'), ''))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[37] ComposeGrandRow Y2
+Inputs: concat('<tr><td colspan="2" valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;font-weight:bold;color:#FFFFFF;background:#C00000;">GRAND TOTAL</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_NoAssign]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_NoAssign]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_BDT]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_BDT]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_Other]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_Other]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_UNI]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_UNI]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_WW]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_WW]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_NGTrue]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_NGTrue]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_NGCDC]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_NGCDC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_BBTEC]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_BBTEC]']), '#,##0')), '</td>', '<td valign="middle" style="padding:5px 6px;border:1px solid #DDDDDD;vertical-align:middle;text-align:right;font-weight:bold;color:#FFFFFF;background:#C00000;">', if(equals(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_Total]']), 0), '', formatNumber(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_Total]']), '#,##0')), '</td></tr>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[38] ComposeMatrixHTML Y2
+Inputs: concat(outputs('ComposeStage_OnProcess_Y2'), outputs('ComposeStage_Engagement_Y2'), outputs('ComposeStage_Payment_Y2'), outputs('ComposeGrandRow_Y2'))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[39] GetDetail NoAssign: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ =
+    FILTER(
+        ''RENEW CONTRACT TASK'',
+        ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_
+            && ''RENEW CONTRACT TASK''[Sub_New]=" No Assign"
+    )
+RETURN
+    SELECTCOLUMNS(
+        Filtered_,
+        "c1", ''RENEW CONTRACT TASK''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK''[STEP_V3_Y26],
+        "c3", ''RENEW CONTRACT TASK''[GROUP],
+        "c4", ''RENEW CONTRACT TASK''[SUB_STAGE],
+        "c5", ''RENEW CONTRACT TASK''[RESPONSIBLE],
+        "c6", ''RENEW CONTRACT TASK''[SAR_TASK_NO],
+        "c7", TRIM(''RENEW CONTRACT TASK''[Sub_New]),
+        "c8", ''RENEW CONTRACT TASK''[PROCESS_TYPE],
+        "c9", ''RENEW CONTRACT TASK''[TASK_STATUS],
+        "c10", ''RENEW CONTRACT TASK''[PC_STATUS],
+        "c11", ''RENEW CONTRACT TASK''[CONTRACT_CODE],
+        "c12", ''RENEW CONTRACT TASK''[CONTRACT_START_DATE_CHAR],
+        "c13", ''RENEW CONTRACT TASK''[CONTRACT_END_DATE_CHAR],
+        "c14", ''RENEW CONTRACT TASK''[XCONTRACT_TYPE],
+        "c15", ''RENEW CONTRACT TASK''[XCONTRACT_STATUS],
+        "c16", ''RENEW CONTRACT TASK''[LOCATION_ID],
+        "c17", ''RENEW CONTRACT TASK''[SUBCONTRACTOR],
+        "c18", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE],
+        "c19", ''RENEW CONTRACT TASK''[SUB_PROCESS_TYPE],
+        "c20", ''RENEW CONTRACT TASK''[REMARK],
+        "c21", ''RENEW CONTRACT TASK''[PRE_CONTRACT_NO],
+        "c22", ''RENEW CONTRACT TASK''[NEGOTIATION_STATUS_DESC],
+        "c23", ''RENEW CONTRACT TASK''[REASON],
+        "c24", ''RENEW CONTRACT TASK''[HOST_NAME],
+        "c25", ''RENEW CONTRACT TASK''[CAT_TRANSFER_DESC],
+        "c26", ''RENEW CONTRACT TASK''[SUBCONTRACTOR_NAME],
+        "c27", ''RENEW CONTRACT TASK''[MENTOR],
+        "c28", ''RENEW CONTRACT TASK''[EMS_NO],
+        "c29", ''RENEW CONTRACT TASK''[MODIFY_USER],
+        "c30", ''RENEW CONTRACT TASK''[MODIFY_DATE],
+        "c31", ''RENEW CONTRACT TASK''[OLD_LOCATION_DETAIL],
+        "c32", ''RENEW CONTRACT TASK''[LOC_TYPE],
+        "c33", ''RENEW CONTRACT TASK''[SITE_TYPE],
+        "c34", ''RENEW CONTRACT TASK''[GEO_REGION],
+        "c35", ''RENEW CONTRACT TASK''[IS_VALID],
+        "c36", ''RENEW CONTRACT TASK''[ASSIGN_STATUS],
+        "c37", ''RENEW CONTRACT TASK''[PROCESS_STATUS],
+        "c38", ''RENEW CONTRACT TASK''[OLD_COMPANY_NAME],
+        "c39", ''RENEW CONTRACT TASK''[OLD_CONTRACT_TYPE_NAME],
+        "c40", ''RENEW CONTRACT TASK''[OLD_CONTRACT_STATUS],
+        "c41", ''RENEW CONTRACT TASK''[OLD_LOCATION_LIST],
+        "c42", ''RENEW CONTRACT TASK''[NEW_COMPANY_NAME],
+        "c43", ''RENEW CONTRACT TASK''[NEW_CONTRACT_TYPE],
+        "c44", ''RENEW CONTRACT TASK''[NEW_CONTRACT_STATUS],
+        "c45", ''RENEW CONTRACT TASK''[NEW_LOCATION_LIST],
+        "c46", ''RENEW CONTRACT TASK''[SITE_TYPE_EDIT],
+        "c47", ''RENEW CONTRACT TASK''[SUB_GROUP],
+        "c48", ''RENEW CONTRACT TASK''[CONTRACT_NAME],
+        "c49", ''RENEW CONTRACT TASK''[CONTRACT_SITE_TYPE],
+        "c50", ''RENEW CONTRACT TASK''[LANDLOAD_NAME],
+        "c51", ''RENEW CONTRACT TASK''[LANDLOAD_TYPE],
+        "c52", ''RENEW CONTRACT TASK''[MONTH_OLD_CONTRACT_END],
+        "c53", ''RENEW CONTRACT TASK''[Sort_Step_V3],
+        "c54", ''RENEW CONTRACT TASK''[NG_TRUE],
+        "c55", ''RENEW CONTRACT TASK''[BFKT],
+        "c56", ''RENEW CONTRACT TASK''[Site Corporate],
+        "c57", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE_LIST],
+        "c58", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_START_DATE], "dd/MM/yyyy"),
+        "c59", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE], "dd/MM/yyyy"),
+        "c60", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(''RENEW CONTRACT TASK [NEW LOCATION]'', ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID] = ''RENEW CONTRACT TASK''[TASK_ID]), "R", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis])), [R], ", ")
+    )
+ORDER BY [c1]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[40] GetDetail BDT: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ =
+    FILTER(
+        ''RENEW CONTRACT TASK'',
+        ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_
+            && ''RENEW CONTRACT TASK''[Sub_New]="BD&T"
+    )
+RETURN
+    SELECTCOLUMNS(
+        Filtered_,
+        "c1", ''RENEW CONTRACT TASK''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK''[STEP_V3_Y26],
+        "c3", ''RENEW CONTRACT TASK''[GROUP],
+        "c4", ''RENEW CONTRACT TASK''[SUB_STAGE],
+        "c5", ''RENEW CONTRACT TASK''[RESPONSIBLE],
+        "c6", ''RENEW CONTRACT TASK''[SAR_TASK_NO],
+        "c7", TRIM(''RENEW CONTRACT TASK''[Sub_New]),
+        "c8", ''RENEW CONTRACT TASK''[PROCESS_TYPE],
+        "c9", ''RENEW CONTRACT TASK''[TASK_STATUS],
+        "c10", ''RENEW CONTRACT TASK''[PC_STATUS],
+        "c11", ''RENEW CONTRACT TASK''[CONTRACT_CODE],
+        "c12", ''RENEW CONTRACT TASK''[CONTRACT_START_DATE_CHAR],
+        "c13", ''RENEW CONTRACT TASK''[CONTRACT_END_DATE_CHAR],
+        "c14", ''RENEW CONTRACT TASK''[XCONTRACT_TYPE],
+        "c15", ''RENEW CONTRACT TASK''[XCONTRACT_STATUS],
+        "c16", ''RENEW CONTRACT TASK''[LOCATION_ID],
+        "c17", ''RENEW CONTRACT TASK''[SUBCONTRACTOR],
+        "c18", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE],
+        "c19", ''RENEW CONTRACT TASK''[SUB_PROCESS_TYPE],
+        "c20", ''RENEW CONTRACT TASK''[REMARK],
+        "c21", ''RENEW CONTRACT TASK''[PRE_CONTRACT_NO],
+        "c22", ''RENEW CONTRACT TASK''[NEGOTIATION_STATUS_DESC],
+        "c23", ''RENEW CONTRACT TASK''[REASON],
+        "c24", ''RENEW CONTRACT TASK''[HOST_NAME],
+        "c25", ''RENEW CONTRACT TASK''[CAT_TRANSFER_DESC],
+        "c26", ''RENEW CONTRACT TASK''[SUBCONTRACTOR_NAME],
+        "c27", ''RENEW CONTRACT TASK''[MENTOR],
+        "c28", ''RENEW CONTRACT TASK''[EMS_NO],
+        "c29", ''RENEW CONTRACT TASK''[MODIFY_USER],
+        "c30", ''RENEW CONTRACT TASK''[MODIFY_DATE],
+        "c31", ''RENEW CONTRACT TASK''[OLD_LOCATION_DETAIL],
+        "c32", ''RENEW CONTRACT TASK''[LOC_TYPE],
+        "c33", ''RENEW CONTRACT TASK''[SITE_TYPE],
+        "c34", ''RENEW CONTRACT TASK''[GEO_REGION],
+        "c35", ''RENEW CONTRACT TASK''[IS_VALID],
+        "c36", ''RENEW CONTRACT TASK''[ASSIGN_STATUS],
+        "c37", ''RENEW CONTRACT TASK''[PROCESS_STATUS],
+        "c38", ''RENEW CONTRACT TASK''[OLD_COMPANY_NAME],
+        "c39", ''RENEW CONTRACT TASK''[OLD_CONTRACT_TYPE_NAME],
+        "c40", ''RENEW CONTRACT TASK''[OLD_CONTRACT_STATUS],
+        "c41", ''RENEW CONTRACT TASK''[OLD_LOCATION_LIST],
+        "c42", ''RENEW CONTRACT TASK''[NEW_COMPANY_NAME],
+        "c43", ''RENEW CONTRACT TASK''[NEW_CONTRACT_TYPE],
+        "c44", ''RENEW CONTRACT TASK''[NEW_CONTRACT_STATUS],
+        "c45", ''RENEW CONTRACT TASK''[NEW_LOCATION_LIST],
+        "c46", ''RENEW CONTRACT TASK''[SITE_TYPE_EDIT],
+        "c47", ''RENEW CONTRACT TASK''[SUB_GROUP],
+        "c48", ''RENEW CONTRACT TASK''[CONTRACT_NAME],
+        "c49", ''RENEW CONTRACT TASK''[CONTRACT_SITE_TYPE],
+        "c50", ''RENEW CONTRACT TASK''[LANDLOAD_NAME],
+        "c51", ''RENEW CONTRACT TASK''[LANDLOAD_TYPE],
+        "c52", ''RENEW CONTRACT TASK''[MONTH_OLD_CONTRACT_END],
+        "c53", ''RENEW CONTRACT TASK''[Sort_Step_V3],
+        "c54", ''RENEW CONTRACT TASK''[NG_TRUE],
+        "c55", ''RENEW CONTRACT TASK''[BFKT],
+        "c56", ''RENEW CONTRACT TASK''[Site Corporate],
+        "c57", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE_LIST],
+        "c58", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_START_DATE], "dd/MM/yyyy"),
+        "c59", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE], "dd/MM/yyyy"),
+        "c60", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(''RENEW CONTRACT TASK [NEW LOCATION]'', ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID] = ''RENEW CONTRACT TASK''[TASK_ID]), "R", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis])), [R], ", ")
+    )
+ORDER BY [c1]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[41] GetDetail Other: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ =
+    FILTER(
+        ''RENEW CONTRACT TASK'',
+        ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_
+            && ''RENEW CONTRACT TASK''[Sub_New]="Other"
+    )
+RETURN
+    SELECTCOLUMNS(
+        Filtered_,
+        "c1", ''RENEW CONTRACT TASK''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK''[STEP_V3_Y26],
+        "c3", ''RENEW CONTRACT TASK''[GROUP],
+        "c4", ''RENEW CONTRACT TASK''[SUB_STAGE],
+        "c5", ''RENEW CONTRACT TASK''[RESPONSIBLE],
+        "c6", ''RENEW CONTRACT TASK''[SAR_TASK_NO],
+        "c7", TRIM(''RENEW CONTRACT TASK''[Sub_New]),
+        "c8", ''RENEW CONTRACT TASK''[PROCESS_TYPE],
+        "c9", ''RENEW CONTRACT TASK''[TASK_STATUS],
+        "c10", ''RENEW CONTRACT TASK''[PC_STATUS],
+        "c11", ''RENEW CONTRACT TASK''[CONTRACT_CODE],
+        "c12", ''RENEW CONTRACT TASK''[CONTRACT_START_DATE_CHAR],
+        "c13", ''RENEW CONTRACT TASK''[CONTRACT_END_DATE_CHAR],
+        "c14", ''RENEW CONTRACT TASK''[XCONTRACT_TYPE],
+        "c15", ''RENEW CONTRACT TASK''[XCONTRACT_STATUS],
+        "c16", ''RENEW CONTRACT TASK''[LOCATION_ID],
+        "c17", ''RENEW CONTRACT TASK''[SUBCONTRACTOR],
+        "c18", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE],
+        "c19", ''RENEW CONTRACT TASK''[SUB_PROCESS_TYPE],
+        "c20", ''RENEW CONTRACT TASK''[REMARK],
+        "c21", ''RENEW CONTRACT TASK''[PRE_CONTRACT_NO],
+        "c22", ''RENEW CONTRACT TASK''[NEGOTIATION_STATUS_DESC],
+        "c23", ''RENEW CONTRACT TASK''[REASON],
+        "c24", ''RENEW CONTRACT TASK''[HOST_NAME],
+        "c25", ''RENEW CONTRACT TASK''[CAT_TRANSFER_DESC],
+        "c26", ''RENEW CONTRACT TASK''[SUBCONTRACTOR_NAME],
+        "c27", ''RENEW CONTRACT TASK''[MENTOR],
+        "c28", ''RENEW CONTRACT TASK''[EMS_NO],
+        "c29", ''RENEW CONTRACT TASK''[MODIFY_USER],
+        "c30", ''RENEW CONTRACT TASK''[MODIFY_DATE],
+        "c31", ''RENEW CONTRACT TASK''[OLD_LOCATION_DETAIL],
+        "c32", ''RENEW CONTRACT TASK''[LOC_TYPE],
+        "c33", ''RENEW CONTRACT TASK''[SITE_TYPE],
+        "c34", ''RENEW CONTRACT TASK''[GEO_REGION],
+        "c35", ''RENEW CONTRACT TASK''[IS_VALID],
+        "c36", ''RENEW CONTRACT TASK''[ASSIGN_STATUS],
+        "c37", ''RENEW CONTRACT TASK''[PROCESS_STATUS],
+        "c38", ''RENEW CONTRACT TASK''[OLD_COMPANY_NAME],
+        "c39", ''RENEW CONTRACT TASK''[OLD_CONTRACT_TYPE_NAME],
+        "c40", ''RENEW CONTRACT TASK''[OLD_CONTRACT_STATUS],
+        "c41", ''RENEW CONTRACT TASK''[OLD_LOCATION_LIST],
+        "c42", ''RENEW CONTRACT TASK''[NEW_COMPANY_NAME],
+        "c43", ''RENEW CONTRACT TASK''[NEW_CONTRACT_TYPE],
+        "c44", ''RENEW CONTRACT TASK''[NEW_CONTRACT_STATUS],
+        "c45", ''RENEW CONTRACT TASK''[NEW_LOCATION_LIST],
+        "c46", ''RENEW CONTRACT TASK''[SITE_TYPE_EDIT],
+        "c47", ''RENEW CONTRACT TASK''[SUB_GROUP],
+        "c48", ''RENEW CONTRACT TASK''[CONTRACT_NAME],
+        "c49", ''RENEW CONTRACT TASK''[CONTRACT_SITE_TYPE],
+        "c50", ''RENEW CONTRACT TASK''[LANDLOAD_NAME],
+        "c51", ''RENEW CONTRACT TASK''[LANDLOAD_TYPE],
+        "c52", ''RENEW CONTRACT TASK''[MONTH_OLD_CONTRACT_END],
+        "c53", ''RENEW CONTRACT TASK''[Sort_Step_V3],
+        "c54", ''RENEW CONTRACT TASK''[NG_TRUE],
+        "c55", ''RENEW CONTRACT TASK''[BFKT],
+        "c56", ''RENEW CONTRACT TASK''[Site Corporate],
+        "c57", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE_LIST],
+        "c58", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_START_DATE], "dd/MM/yyyy"),
+        "c59", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE], "dd/MM/yyyy"),
+        "c60", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(''RENEW CONTRACT TASK [NEW LOCATION]'', ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID] = ''RENEW CONTRACT TASK''[TASK_ID]), "R", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis])), [R], ", ")
+    )
+ORDER BY [c1]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[42] GetDetail UNI: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ =
+    FILTER(
+        ''RENEW CONTRACT TASK'',
+        ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_
+            && ''RENEW CONTRACT TASK''[Sub_New]="UNI"
+    )
+RETURN
+    SELECTCOLUMNS(
+        Filtered_,
+        "c1", ''RENEW CONTRACT TASK''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK''[STEP_V3_Y26],
+        "c3", ''RENEW CONTRACT TASK''[GROUP],
+        "c4", ''RENEW CONTRACT TASK''[SUB_STAGE],
+        "c5", ''RENEW CONTRACT TASK''[RESPONSIBLE],
+        "c6", ''RENEW CONTRACT TASK''[SAR_TASK_NO],
+        "c7", TRIM(''RENEW CONTRACT TASK''[Sub_New]),
+        "c8", ''RENEW CONTRACT TASK''[PROCESS_TYPE],
+        "c9", ''RENEW CONTRACT TASK''[TASK_STATUS],
+        "c10", ''RENEW CONTRACT TASK''[PC_STATUS],
+        "c11", ''RENEW CONTRACT TASK''[CONTRACT_CODE],
+        "c12", ''RENEW CONTRACT TASK''[CONTRACT_START_DATE_CHAR],
+        "c13", ''RENEW CONTRACT TASK''[CONTRACT_END_DATE_CHAR],
+        "c14", ''RENEW CONTRACT TASK''[XCONTRACT_TYPE],
+        "c15", ''RENEW CONTRACT TASK''[XCONTRACT_STATUS],
+        "c16", ''RENEW CONTRACT TASK''[LOCATION_ID],
+        "c17", ''RENEW CONTRACT TASK''[SUBCONTRACTOR],
+        "c18", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE],
+        "c19", ''RENEW CONTRACT TASK''[SUB_PROCESS_TYPE],
+        "c20", ''RENEW CONTRACT TASK''[REMARK],
+        "c21", ''RENEW CONTRACT TASK''[PRE_CONTRACT_NO],
+        "c22", ''RENEW CONTRACT TASK''[NEGOTIATION_STATUS_DESC],
+        "c23", ''RENEW CONTRACT TASK''[REASON],
+        "c24", ''RENEW CONTRACT TASK''[HOST_NAME],
+        "c25", ''RENEW CONTRACT TASK''[CAT_TRANSFER_DESC],
+        "c26", ''RENEW CONTRACT TASK''[SUBCONTRACTOR_NAME],
+        "c27", ''RENEW CONTRACT TASK''[MENTOR],
+        "c28", ''RENEW CONTRACT TASK''[EMS_NO],
+        "c29", ''RENEW CONTRACT TASK''[MODIFY_USER],
+        "c30", ''RENEW CONTRACT TASK''[MODIFY_DATE],
+        "c31", ''RENEW CONTRACT TASK''[OLD_LOCATION_DETAIL],
+        "c32", ''RENEW CONTRACT TASK''[LOC_TYPE],
+        "c33", ''RENEW CONTRACT TASK''[SITE_TYPE],
+        "c34", ''RENEW CONTRACT TASK''[GEO_REGION],
+        "c35", ''RENEW CONTRACT TASK''[IS_VALID],
+        "c36", ''RENEW CONTRACT TASK''[ASSIGN_STATUS],
+        "c37", ''RENEW CONTRACT TASK''[PROCESS_STATUS],
+        "c38", ''RENEW CONTRACT TASK''[OLD_COMPANY_NAME],
+        "c39", ''RENEW CONTRACT TASK''[OLD_CONTRACT_TYPE_NAME],
+        "c40", ''RENEW CONTRACT TASK''[OLD_CONTRACT_STATUS],
+        "c41", ''RENEW CONTRACT TASK''[OLD_LOCATION_LIST],
+        "c42", ''RENEW CONTRACT TASK''[NEW_COMPANY_NAME],
+        "c43", ''RENEW CONTRACT TASK''[NEW_CONTRACT_TYPE],
+        "c44", ''RENEW CONTRACT TASK''[NEW_CONTRACT_STATUS],
+        "c45", ''RENEW CONTRACT TASK''[NEW_LOCATION_LIST],
+        "c46", ''RENEW CONTRACT TASK''[SITE_TYPE_EDIT],
+        "c47", ''RENEW CONTRACT TASK''[SUB_GROUP],
+        "c48", ''RENEW CONTRACT TASK''[CONTRACT_NAME],
+        "c49", ''RENEW CONTRACT TASK''[CONTRACT_SITE_TYPE],
+        "c50", ''RENEW CONTRACT TASK''[LANDLOAD_NAME],
+        "c51", ''RENEW CONTRACT TASK''[LANDLOAD_TYPE],
+        "c52", ''RENEW CONTRACT TASK''[MONTH_OLD_CONTRACT_END],
+        "c53", ''RENEW CONTRACT TASK''[Sort_Step_V3],
+        "c54", ''RENEW CONTRACT TASK''[NG_TRUE],
+        "c55", ''RENEW CONTRACT TASK''[BFKT],
+        "c56", ''RENEW CONTRACT TASK''[Site Corporate],
+        "c57", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE_LIST],
+        "c58", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_START_DATE], "dd/MM/yyyy"),
+        "c59", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE], "dd/MM/yyyy"),
+        "c60", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(''RENEW CONTRACT TASK [NEW LOCATION]'', ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID] = ''RENEW CONTRACT TASK''[TASK_ID]), "R", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis])), [R], ", ")
+    )
+ORDER BY [c1]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[43] GetDetail WW: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ =
+    FILTER(
+        ''RENEW CONTRACT TASK'',
+        ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_
+            && ''RENEW CONTRACT TASK''[Sub_New]="W&W"
+    )
+RETURN
+    SELECTCOLUMNS(
+        Filtered_,
+        "c1", ''RENEW CONTRACT TASK''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK''[STEP_V3_Y26],
+        "c3", ''RENEW CONTRACT TASK''[GROUP],
+        "c4", ''RENEW CONTRACT TASK''[SUB_STAGE],
+        "c5", ''RENEW CONTRACT TASK''[RESPONSIBLE],
+        "c6", ''RENEW CONTRACT TASK''[SAR_TASK_NO],
+        "c7", TRIM(''RENEW CONTRACT TASK''[Sub_New]),
+        "c8", ''RENEW CONTRACT TASK''[PROCESS_TYPE],
+        "c9", ''RENEW CONTRACT TASK''[TASK_STATUS],
+        "c10", ''RENEW CONTRACT TASK''[PC_STATUS],
+        "c11", ''RENEW CONTRACT TASK''[CONTRACT_CODE],
+        "c12", ''RENEW CONTRACT TASK''[CONTRACT_START_DATE_CHAR],
+        "c13", ''RENEW CONTRACT TASK''[CONTRACT_END_DATE_CHAR],
+        "c14", ''RENEW CONTRACT TASK''[XCONTRACT_TYPE],
+        "c15", ''RENEW CONTRACT TASK''[XCONTRACT_STATUS],
+        "c16", ''RENEW CONTRACT TASK''[LOCATION_ID],
+        "c17", ''RENEW CONTRACT TASK''[SUBCONTRACTOR],
+        "c18", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE],
+        "c19", ''RENEW CONTRACT TASK''[SUB_PROCESS_TYPE],
+        "c20", ''RENEW CONTRACT TASK''[REMARK],
+        "c21", ''RENEW CONTRACT TASK''[PRE_CONTRACT_NO],
+        "c22", ''RENEW CONTRACT TASK''[NEGOTIATION_STATUS_DESC],
+        "c23", ''RENEW CONTRACT TASK''[REASON],
+        "c24", ''RENEW CONTRACT TASK''[HOST_NAME],
+        "c25", ''RENEW CONTRACT TASK''[CAT_TRANSFER_DESC],
+        "c26", ''RENEW CONTRACT TASK''[SUBCONTRACTOR_NAME],
+        "c27", ''RENEW CONTRACT TASK''[MENTOR],
+        "c28", ''RENEW CONTRACT TASK''[EMS_NO],
+        "c29", ''RENEW CONTRACT TASK''[MODIFY_USER],
+        "c30", ''RENEW CONTRACT TASK''[MODIFY_DATE],
+        "c31", ''RENEW CONTRACT TASK''[OLD_LOCATION_DETAIL],
+        "c32", ''RENEW CONTRACT TASK''[LOC_TYPE],
+        "c33", ''RENEW CONTRACT TASK''[SITE_TYPE],
+        "c34", ''RENEW CONTRACT TASK''[GEO_REGION],
+        "c35", ''RENEW CONTRACT TASK''[IS_VALID],
+        "c36", ''RENEW CONTRACT TASK''[ASSIGN_STATUS],
+        "c37", ''RENEW CONTRACT TASK''[PROCESS_STATUS],
+        "c38", ''RENEW CONTRACT TASK''[OLD_COMPANY_NAME],
+        "c39", ''RENEW CONTRACT TASK''[OLD_CONTRACT_TYPE_NAME],
+        "c40", ''RENEW CONTRACT TASK''[OLD_CONTRACT_STATUS],
+        "c41", ''RENEW CONTRACT TASK''[OLD_LOCATION_LIST],
+        "c42", ''RENEW CONTRACT TASK''[NEW_COMPANY_NAME],
+        "c43", ''RENEW CONTRACT TASK''[NEW_CONTRACT_TYPE],
+        "c44", ''RENEW CONTRACT TASK''[NEW_CONTRACT_STATUS],
+        "c45", ''RENEW CONTRACT TASK''[NEW_LOCATION_LIST],
+        "c46", ''RENEW CONTRACT TASK''[SITE_TYPE_EDIT],
+        "c47", ''RENEW CONTRACT TASK''[SUB_GROUP],
+        "c48", ''RENEW CONTRACT TASK''[CONTRACT_NAME],
+        "c49", ''RENEW CONTRACT TASK''[CONTRACT_SITE_TYPE],
+        "c50", ''RENEW CONTRACT TASK''[LANDLOAD_NAME],
+        "c51", ''RENEW CONTRACT TASK''[LANDLOAD_TYPE],
+        "c52", ''RENEW CONTRACT TASK''[MONTH_OLD_CONTRACT_END],
+        "c53", ''RENEW CONTRACT TASK''[Sort_Step_V3],
+        "c54", ''RENEW CONTRACT TASK''[NG_TRUE],
+        "c55", ''RENEW CONTRACT TASK''[BFKT],
+        "c56", ''RENEW CONTRACT TASK''[Site Corporate],
+        "c57", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE_LIST],
+        "c58", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_START_DATE], "dd/MM/yyyy"),
+        "c59", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE], "dd/MM/yyyy"),
+        "c60", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(''RENEW CONTRACT TASK [NEW LOCATION]'', ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID] = ''RENEW CONTRACT TASK''[TASK_ID]), "R", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis])), [R], ", ")
+    )
+ORDER BY [c1]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[44] GetDetail NGTrue: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ =
+    FILTER(
+        ''RENEW CONTRACT TASK'',
+        ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_
+            && ''RENEW CONTRACT TASK''[Sub_New]="NG_True"
+    )
+RETURN
+    SELECTCOLUMNS(
+        Filtered_,
+        "c1", ''RENEW CONTRACT TASK''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK''[STEP_V3_Y26],
+        "c3", ''RENEW CONTRACT TASK''[GROUP],
+        "c4", ''RENEW CONTRACT TASK''[SUB_STAGE],
+        "c5", ''RENEW CONTRACT TASK''[RESPONSIBLE],
+        "c6", ''RENEW CONTRACT TASK''[SAR_TASK_NO],
+        "c7", TRIM(''RENEW CONTRACT TASK''[Sub_New]),
+        "c8", ''RENEW CONTRACT TASK''[PROCESS_TYPE],
+        "c9", ''RENEW CONTRACT TASK''[TASK_STATUS],
+        "c10", ''RENEW CONTRACT TASK''[PC_STATUS],
+        "c11", ''RENEW CONTRACT TASK''[CONTRACT_CODE],
+        "c12", ''RENEW CONTRACT TASK''[CONTRACT_START_DATE_CHAR],
+        "c13", ''RENEW CONTRACT TASK''[CONTRACT_END_DATE_CHAR],
+        "c14", ''RENEW CONTRACT TASK''[XCONTRACT_TYPE],
+        "c15", ''RENEW CONTRACT TASK''[XCONTRACT_STATUS],
+        "c16", ''RENEW CONTRACT TASK''[LOCATION_ID],
+        "c17", ''RENEW CONTRACT TASK''[SUBCONTRACTOR],
+        "c18", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE],
+        "c19", ''RENEW CONTRACT TASK''[SUB_PROCESS_TYPE],
+        "c20", ''RENEW CONTRACT TASK''[REMARK],
+        "c21", ''RENEW CONTRACT TASK''[PRE_CONTRACT_NO],
+        "c22", ''RENEW CONTRACT TASK''[NEGOTIATION_STATUS_DESC],
+        "c23", ''RENEW CONTRACT TASK''[REASON],
+        "c24", ''RENEW CONTRACT TASK''[HOST_NAME],
+        "c25", ''RENEW CONTRACT TASK''[CAT_TRANSFER_DESC],
+        "c26", ''RENEW CONTRACT TASK''[SUBCONTRACTOR_NAME],
+        "c27", ''RENEW CONTRACT TASK''[MENTOR],
+        "c28", ''RENEW CONTRACT TASK''[EMS_NO],
+        "c29", ''RENEW CONTRACT TASK''[MODIFY_USER],
+        "c30", ''RENEW CONTRACT TASK''[MODIFY_DATE],
+        "c31", ''RENEW CONTRACT TASK''[OLD_LOCATION_DETAIL],
+        "c32", ''RENEW CONTRACT TASK''[LOC_TYPE],
+        "c33", ''RENEW CONTRACT TASK''[SITE_TYPE],
+        "c34", ''RENEW CONTRACT TASK''[GEO_REGION],
+        "c35", ''RENEW CONTRACT TASK''[IS_VALID],
+        "c36", ''RENEW CONTRACT TASK''[ASSIGN_STATUS],
+        "c37", ''RENEW CONTRACT TASK''[PROCESS_STATUS],
+        "c38", ''RENEW CONTRACT TASK''[OLD_COMPANY_NAME],
+        "c39", ''RENEW CONTRACT TASK''[OLD_CONTRACT_TYPE_NAME],
+        "c40", ''RENEW CONTRACT TASK''[OLD_CONTRACT_STATUS],
+        "c41", ''RENEW CONTRACT TASK''[OLD_LOCATION_LIST],
+        "c42", ''RENEW CONTRACT TASK''[NEW_COMPANY_NAME],
+        "c43", ''RENEW CONTRACT TASK''[NEW_CONTRACT_TYPE],
+        "c44", ''RENEW CONTRACT TASK''[NEW_CONTRACT_STATUS],
+        "c45", ''RENEW CONTRACT TASK''[NEW_LOCATION_LIST],
+        "c46", ''RENEW CONTRACT TASK''[SITE_TYPE_EDIT],
+        "c47", ''RENEW CONTRACT TASK''[SUB_GROUP],
+        "c48", ''RENEW CONTRACT TASK''[CONTRACT_NAME],
+        "c49", ''RENEW CONTRACT TASK''[CONTRACT_SITE_TYPE],
+        "c50", ''RENEW CONTRACT TASK''[LANDLOAD_NAME],
+        "c51", ''RENEW CONTRACT TASK''[LANDLOAD_TYPE],
+        "c52", ''RENEW CONTRACT TASK''[MONTH_OLD_CONTRACT_END],
+        "c53", ''RENEW CONTRACT TASK''[Sort_Step_V3],
+        "c54", ''RENEW CONTRACT TASK''[NG_TRUE],
+        "c55", ''RENEW CONTRACT TASK''[BFKT],
+        "c56", ''RENEW CONTRACT TASK''[Site Corporate],
+        "c57", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE_LIST],
+        "c58", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_START_DATE], "dd/MM/yyyy"),
+        "c59", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE], "dd/MM/yyyy"),
+        "c60", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(''RENEW CONTRACT TASK [NEW LOCATION]'', ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID] = ''RENEW CONTRACT TASK''[TASK_ID]), "R", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis])), [R], ", ")
+    )
+ORDER BY [c1]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[45] GetDetail NGCDC: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ =
+    FILTER(
+        ''RENEW CONTRACT TASK'',
+        ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_
+            && ''RENEW CONTRACT TASK''[Sub_New]="NG_CDC"
+    )
+RETURN
+    SELECTCOLUMNS(
+        Filtered_,
+        "c1", ''RENEW CONTRACT TASK''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK''[STEP_V3_Y26],
+        "c3", ''RENEW CONTRACT TASK''[GROUP],
+        "c4", ''RENEW CONTRACT TASK''[SUB_STAGE],
+        "c5", ''RENEW CONTRACT TASK''[RESPONSIBLE],
+        "c6", ''RENEW CONTRACT TASK''[SAR_TASK_NO],
+        "c7", TRIM(''RENEW CONTRACT TASK''[Sub_New]),
+        "c8", ''RENEW CONTRACT TASK''[PROCESS_TYPE],
+        "c9", ''RENEW CONTRACT TASK''[TASK_STATUS],
+        "c10", ''RENEW CONTRACT TASK''[PC_STATUS],
+        "c11", ''RENEW CONTRACT TASK''[CONTRACT_CODE],
+        "c12", ''RENEW CONTRACT TASK''[CONTRACT_START_DATE_CHAR],
+        "c13", ''RENEW CONTRACT TASK''[CONTRACT_END_DATE_CHAR],
+        "c14", ''RENEW CONTRACT TASK''[XCONTRACT_TYPE],
+        "c15", ''RENEW CONTRACT TASK''[XCONTRACT_STATUS],
+        "c16", ''RENEW CONTRACT TASK''[LOCATION_ID],
+        "c17", ''RENEW CONTRACT TASK''[SUBCONTRACTOR],
+        "c18", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE],
+        "c19", ''RENEW CONTRACT TASK''[SUB_PROCESS_TYPE],
+        "c20", ''RENEW CONTRACT TASK''[REMARK],
+        "c21", ''RENEW CONTRACT TASK''[PRE_CONTRACT_NO],
+        "c22", ''RENEW CONTRACT TASK''[NEGOTIATION_STATUS_DESC],
+        "c23", ''RENEW CONTRACT TASK''[REASON],
+        "c24", ''RENEW CONTRACT TASK''[HOST_NAME],
+        "c25", ''RENEW CONTRACT TASK''[CAT_TRANSFER_DESC],
+        "c26", ''RENEW CONTRACT TASK''[SUBCONTRACTOR_NAME],
+        "c27", ''RENEW CONTRACT TASK''[MENTOR],
+        "c28", ''RENEW CONTRACT TASK''[EMS_NO],
+        "c29", ''RENEW CONTRACT TASK''[MODIFY_USER],
+        "c30", ''RENEW CONTRACT TASK''[MODIFY_DATE],
+        "c31", ''RENEW CONTRACT TASK''[OLD_LOCATION_DETAIL],
+        "c32", ''RENEW CONTRACT TASK''[LOC_TYPE],
+        "c33", ''RENEW CONTRACT TASK''[SITE_TYPE],
+        "c34", ''RENEW CONTRACT TASK''[GEO_REGION],
+        "c35", ''RENEW CONTRACT TASK''[IS_VALID],
+        "c36", ''RENEW CONTRACT TASK''[ASSIGN_STATUS],
+        "c37", ''RENEW CONTRACT TASK''[PROCESS_STATUS],
+        "c38", ''RENEW CONTRACT TASK''[OLD_COMPANY_NAME],
+        "c39", ''RENEW CONTRACT TASK''[OLD_CONTRACT_TYPE_NAME],
+        "c40", ''RENEW CONTRACT TASK''[OLD_CONTRACT_STATUS],
+        "c41", ''RENEW CONTRACT TASK''[OLD_LOCATION_LIST],
+        "c42", ''RENEW CONTRACT TASK''[NEW_COMPANY_NAME],
+        "c43", ''RENEW CONTRACT TASK''[NEW_CONTRACT_TYPE],
+        "c44", ''RENEW CONTRACT TASK''[NEW_CONTRACT_STATUS],
+        "c45", ''RENEW CONTRACT TASK''[NEW_LOCATION_LIST],
+        "c46", ''RENEW CONTRACT TASK''[SITE_TYPE_EDIT],
+        "c47", ''RENEW CONTRACT TASK''[SUB_GROUP],
+        "c48", ''RENEW CONTRACT TASK''[CONTRACT_NAME],
+        "c49", ''RENEW CONTRACT TASK''[CONTRACT_SITE_TYPE],
+        "c50", ''RENEW CONTRACT TASK''[LANDLOAD_NAME],
+        "c51", ''RENEW CONTRACT TASK''[LANDLOAD_TYPE],
+        "c52", ''RENEW CONTRACT TASK''[MONTH_OLD_CONTRACT_END],
+        "c53", ''RENEW CONTRACT TASK''[Sort_Step_V3],
+        "c54", ''RENEW CONTRACT TASK''[NG_TRUE],
+        "c55", ''RENEW CONTRACT TASK''[BFKT],
+        "c56", ''RENEW CONTRACT TASK''[Site Corporate],
+        "c57", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE_LIST],
+        "c58", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_START_DATE], "dd/MM/yyyy"),
+        "c59", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE], "dd/MM/yyyy"),
+        "c60", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(''RENEW CONTRACT TASK [NEW LOCATION]'', ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID] = ''RENEW CONTRACT TASK''[TASK_ID]), "R", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis])), [R], ", ")
+    )
+ORDER BY [c1]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[46] GetDetail BBTEC: Nulls included = No
+concat('EVALUATE
+VAR StageSet_ = {"On Process","Engagement","Payment"}
+VAR YearFrom_ = ', formatDateTime(variables('InitDateFrom'), 'yyyy'), '
+VAR YearTo_ = ', formatDateTime(variables('InitDateTo'), 'yyyy'), '
+VAR Filtered_ =
+    FILTER(
+        ''RENEW CONTRACT TASK'',
+        ''RENEW CONTRACT TASK''[STEP_V3_Y26] IN StageSet_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) >= YearFrom_
+            && YEAR(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE]) <= YearTo_
+            && ''RENEW CONTRACT TASK''[Sub_New]="BBTEC"
+    )
+RETURN
+    SELECTCOLUMNS(
+        Filtered_,
+        "c1", ''RENEW CONTRACT TASK''[TASK_ID],
+        "c2", ''RENEW CONTRACT TASK''[STEP_V3_Y26],
+        "c3", ''RENEW CONTRACT TASK''[GROUP],
+        "c4", ''RENEW CONTRACT TASK''[SUB_STAGE],
+        "c5", ''RENEW CONTRACT TASK''[RESPONSIBLE],
+        "c6", ''RENEW CONTRACT TASK''[SAR_TASK_NO],
+        "c7", TRIM(''RENEW CONTRACT TASK''[Sub_New]),
+        "c8", ''RENEW CONTRACT TASK''[PROCESS_TYPE],
+        "c9", ''RENEW CONTRACT TASK''[TASK_STATUS],
+        "c10", ''RENEW CONTRACT TASK''[PC_STATUS],
+        "c11", ''RENEW CONTRACT TASK''[CONTRACT_CODE],
+        "c12", ''RENEW CONTRACT TASK''[CONTRACT_START_DATE_CHAR],
+        "c13", ''RENEW CONTRACT TASK''[CONTRACT_END_DATE_CHAR],
+        "c14", ''RENEW CONTRACT TASK''[XCONTRACT_TYPE],
+        "c15", ''RENEW CONTRACT TASK''[XCONTRACT_STATUS],
+        "c16", ''RENEW CONTRACT TASK''[LOCATION_ID],
+        "c17", ''RENEW CONTRACT TASK''[SUBCONTRACTOR],
+        "c18", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE],
+        "c19", ''RENEW CONTRACT TASK''[SUB_PROCESS_TYPE],
+        "c20", ''RENEW CONTRACT TASK''[REMARK],
+        "c21", ''RENEW CONTRACT TASK''[PRE_CONTRACT_NO],
+        "c22", ''RENEW CONTRACT TASK''[NEGOTIATION_STATUS_DESC],
+        "c23", ''RENEW CONTRACT TASK''[REASON],
+        "c24", ''RENEW CONTRACT TASK''[HOST_NAME],
+        "c25", ''RENEW CONTRACT TASK''[CAT_TRANSFER_DESC],
+        "c26", ''RENEW CONTRACT TASK''[SUBCONTRACTOR_NAME],
+        "c27", ''RENEW CONTRACT TASK''[MENTOR],
+        "c28", ''RENEW CONTRACT TASK''[EMS_NO],
+        "c29", ''RENEW CONTRACT TASK''[MODIFY_USER],
+        "c30", ''RENEW CONTRACT TASK''[MODIFY_DATE],
+        "c31", ''RENEW CONTRACT TASK''[OLD_LOCATION_DETAIL],
+        "c32", ''RENEW CONTRACT TASK''[LOC_TYPE],
+        "c33", ''RENEW CONTRACT TASK''[SITE_TYPE],
+        "c34", ''RENEW CONTRACT TASK''[GEO_REGION],
+        "c35", ''RENEW CONTRACT TASK''[IS_VALID],
+        "c36", ''RENEW CONTRACT TASK''[ASSIGN_STATUS],
+        "c37", ''RENEW CONTRACT TASK''[PROCESS_STATUS],
+        "c38", ''RENEW CONTRACT TASK''[OLD_COMPANY_NAME],
+        "c39", ''RENEW CONTRACT TASK''[OLD_CONTRACT_TYPE_NAME],
+        "c40", ''RENEW CONTRACT TASK''[OLD_CONTRACT_STATUS],
+        "c41", ''RENEW CONTRACT TASK''[OLD_LOCATION_LIST],
+        "c42", ''RENEW CONTRACT TASK''[NEW_COMPANY_NAME],
+        "c43", ''RENEW CONTRACT TASK''[NEW_CONTRACT_TYPE],
+        "c44", ''RENEW CONTRACT TASK''[NEW_CONTRACT_STATUS],
+        "c45", ''RENEW CONTRACT TASK''[NEW_LOCATION_LIST],
+        "c46", ''RENEW CONTRACT TASK''[SITE_TYPE_EDIT],
+        "c47", ''RENEW CONTRACT TASK''[SUB_GROUP],
+        "c48", ''RENEW CONTRACT TASK''[CONTRACT_NAME],
+        "c49", ''RENEW CONTRACT TASK''[CONTRACT_SITE_TYPE],
+        "c50", ''RENEW CONTRACT TASK''[LANDLOAD_NAME],
+        "c51", ''RENEW CONTRACT TASK''[LANDLOAD_TYPE],
+        "c52", ''RENEW CONTRACT TASK''[MONTH_OLD_CONTRACT_END],
+        "c53", ''RENEW CONTRACT TASK''[Sort_Step_V3],
+        "c54", ''RENEW CONTRACT TASK''[NG_TRUE],
+        "c55", ''RENEW CONTRACT TASK''[BFKT],
+        "c56", ''RENEW CONTRACT TASK''[Site Corporate],
+        "c57", ''RENEW CONTRACT TASK''[OLD_CONTRACT_CODE_LIST],
+        "c58", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_START_DATE], "dd/MM/yyyy"),
+        "c59", FORMAT(''RENEW CONTRACT TASK''[OLD_CONTRACT_END_DATE], "dd/MM/yyyy"),
+        "c60", CONCATENATEX(DISTINCT(SELECTCOLUMNS(FILTER(''RENEW CONTRACT TASK [NEW LOCATION]'', ''RENEW CONTRACT TASK [NEW LOCATION]''[TASK_ID] = ''RENEW CONTRACT TASK''[TASK_ID]), "R", ''RENEW CONTRACT TASK [NEW LOCATION]''[Risk_Analysis])), [R], ", ")
+    )
+ORDER BY [c1]')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[47] ComposeFetchedTotal
+Inputs: add(length(body('GetDetail_NoAssign')?['firstTableRows']), add(length(body('GetDetail_BDT')?['firstTableRows']), add(length(body('GetDetail_Other')?['firstTableRows']), add(length(body('GetDetail_UNI')?['firstTableRows']), add(length(body('GetDetail_WW')?['firstTableRows']), add(length(body('GetDetail_NGTrue')?['firstTableRows']), add(length(body('GetDetail_NGCDC')?['firstTableRows']), length(body('GetDetail_BBTEC')?['firstTableRows']))))))))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[48] Condition: GateFetched
+int(outputs('ComposeFetchedTotal')) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_Total]'])
+length(body('GetDetail_NoAssign')?['firstTableRows']) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_NoAssign]'])
+length(body('GetDetail_BDT')?['firstTableRows']) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_BDT]'])
+length(body('GetDetail_Other')?['firstTableRows']) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_Other]'])
+length(body('GetDetail_UNI')?['firstTableRows']) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_UNI]'])
+length(body('GetDetail_WW')?['firstTableRows']) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_WW]'])
+length(body('GetDetail_NGTrue')?['firstTableRows']) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_NGTrue]'])
+length(body('GetDetail_NGCDC')?['firstTableRows']) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_NGCDC]'])
+length(body('GetDetail_BBTEC')?['firstTableRows']) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_BBTEC]'])
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[49] TRUE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[50] FALSE
+(1) TerminateGateFetchedFailed
+Status: Failed
+Code: GateFetchedMismatch
+Message: concat('InputGate FAIL -- Total: fetched=', string(outputs('ComposeFetchedTotal')), ' grand=', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_Total]'])), ' | NoAssign: fetched=', string(length(body('GetDetail_NoAssign')?['firstTableRows'])), ' grand=', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_NoAssign]'])), ' | BDT: fetched=', string(length(body('GetDetail_BDT')?['firstTableRows'])), ' grand=', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_BDT]'])), ' | Other: fetched=', string(length(body('GetDetail_Other')?['firstTableRows'])), ' grand=', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_Other]'])), ' | UNI: fetched=', string(length(body('GetDetail_UNI')?['firstTableRows'])), ' grand=', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_UNI]'])), ' | WW: fetched=', string(length(body('GetDetail_WW')?['firstTableRows'])), ' grand=', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_WW]'])), ' | NGTrue: fetched=', string(length(body('GetDetail_NGTrue')?['firstTableRows'])), ' grand=', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_NGTrue]'])), ' | NGCDC: fetched=', string(length(body('GetDetail_NGCDC')?['firstTableRows'])), ' grand=', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_NGCDC]'])), ' | BBTEC: fetched=', string(length(body('GetDetail_BBTEC')?['firstTableRows'])), ' grand=', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_BBTEC]'])))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[51] Parallel
+(1) FilterY1 NoAssign
+From: body('GetDetail_NoAssign')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateFrom'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2) FilterY1 BDT
+From: body('GetDetail_BDT')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateFrom'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(3) FilterY1 Other
+From: body('GetDetail_Other')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateFrom'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(4) FilterY1 UNI
+From: body('GetDetail_UNI')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateFrom'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(5) FilterY1 WW
+From: body('GetDetail_WW')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateFrom'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(6) FilterY1 NGTrue
+From: body('GetDetail_NGTrue')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateFrom'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(7) FilterY1 NGCDC
+From: body('GetDetail_NGCDC')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateFrom'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(8) FilterY1 BBTEC
+From: body('GetDetail_BBTEC')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateFrom'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(9) FilterY2 NoAssign
+From: body('GetDetail_NoAssign')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateTo'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(10) FilterY2 BDT
+From: body('GetDetail_BDT')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateTo'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(11) FilterY2 Other
+From: body('GetDetail_Other')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateTo'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(12) FilterY2 UNI
+From: body('GetDetail_UNI')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateTo'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(13) FilterY2 WW
+From: body('GetDetail_WW')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateTo'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(14) FilterY2 NGTrue
+From: body('GetDetail_NGTrue')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateTo'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(15) FilterY2 NGCDC
+From: body('GetDetail_NGCDC')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateTo'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(16) FilterY2 BBTEC
+From: body('GetDetail_BBTEC')?['firstTableRows']
+Filter Query: substring(item()?['[c59]'], 6, 4) is equal to formatDateTime(variables('InitDateTo'), 'yyyy')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[52] ComposeYearSplitTotals
+Inputs: {
+  "sumY1": @{add(length(body('FilterY1_NoAssign')), add(length(body('FilterY1_BDT')), add(length(body('FilterY1_Other')), add(length(body('FilterY1_UNI')), add(length(body('FilterY1_WW')), add(length(body('FilterY1_NGTrue')), add(length(body('FilterY1_NGCDC')), length(body('FilterY1_BBTEC')))))))))},
+  "sumY2": @{add(length(body('FilterY2_NoAssign')), add(length(body('FilterY2_BDT')), add(length(body('FilterY2_Other')), add(length(body('FilterY2_UNI')), add(length(body('FilterY2_WW')), add(length(body('FilterY2_NGTrue')), add(length(body('FilterY2_NGCDC')), length(body('FilterY2_BBTEC')))))))))}
+}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[53] Condition: GateYearSplit
+int(outputs('ComposeYearSplitTotals')?['sumY1']) is equal to int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_Total]'])
+int(outputs('ComposeYearSplitTotals')?['sumY2']) is equal to int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_Total]'])
+add(int(outputs('ComposeYearSplitTotals')?['sumY1']), int(outputs('ComposeYearSplitTotals')?['sumY2'])) is equal to int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_Total]'])
+length(body('FilterY1_NoAssign')) is equal to int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_NoAssign]'])
+length(body('FilterY1_BDT')) is equal to int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_BDT]'])
+length(body('FilterY1_Other')) is equal to int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_Other]'])
+length(body('FilterY1_UNI')) is equal to int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_UNI]'])
+length(body('FilterY1_WW')) is equal to int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_WW]'])
+length(body('FilterY1_NGTrue')) is equal to int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_NGTrue]'])
+length(body('FilterY1_NGCDC')) is equal to int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_NGCDC]'])
+length(body('FilterY1_BBTEC')) is equal to int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_BBTEC]'])
+length(body('FilterY2_NoAssign')) is equal to int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_NoAssign]'])
+length(body('FilterY2_BDT')) is equal to int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_BDT]'])
+length(body('FilterY2_Other')) is equal to int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_Other]'])
+length(body('FilterY2_UNI')) is equal to int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_UNI]'])
+length(body('FilterY2_WW')) is equal to int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_WW]'])
+length(body('FilterY2_NGTrue')) is equal to int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_NGTrue]'])
+length(body('FilterY2_NGCDC')) is equal to int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_NGCDC]'])
+length(body('FilterY2_BBTEC')) is equal to int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_BBTEC]'])
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[54] TRUE
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[55] FALSE
+(1) TerminateGateYearSplitFailed
+Status: Failed
+Code: GateYearSplitMismatch
+Message: concat('GateYearSplit FAIL -- sumY1=', string(outputs('ComposeYearSplitTotals')?['sumY1']), ' grandY1=', string(int(first(body('Q_MATRIX_GRAND_Y1')?['firstTableRows'])?['[n_Total]'])), ' sumY2=', string(outputs('ComposeYearSplitTotals')?['sumY2']), ' grandY2=', string(int(first(body('Q_MATRIX_GRAND_Y2')?['firstTableRows'])?['[n_Total]'])), ' | FilterY1_NoAssign: n=', string(length(body('FilterY1_NoAssign'))), ' | FilterY1_BDT: n=', string(length(body('FilterY1_BDT'))), ' | FilterY1_Other: n=', string(length(body('FilterY1_Other'))), ' | FilterY1_UNI: n=', string(length(body('FilterY1_UNI'))), ' | FilterY1_WW: n=', string(length(body('FilterY1_WW'))), ' | FilterY1_NGTrue: n=', string(length(body('FilterY1_NGTrue'))), ' | FilterY1_NGCDC: n=', string(length(body('FilterY1_NGCDC'))), ' | FilterY1_BBTEC: n=', string(length(body('FilterY1_BBTEC'))), ' | FilterY2_NoAssign: n=', string(length(body('FilterY2_NoAssign'))), ' | FilterY2_BDT: n=', string(length(body('FilterY2_BDT'))), ' | FilterY2_Other: n=', string(length(body('FilterY2_Other'))), ' | FilterY2_UNI: n=', string(length(body('FilterY2_UNI'))), ' | FilterY2_WW: n=', string(length(body('FilterY2_WW'))), ' | FilterY2_NGTrue: n=', string(length(body('FilterY2_NGTrue'))), ' | FilterY2_NGCDC: n=', string(length(body('FilterY2_NGCDC'))), ' | FilterY2_BBTEC: n=', string(length(body('FilterY2_BBTEC'))))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[56] InitPlanArray Y1
+Name: planArrayY1
+Type: Array
+Value: []
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[57] InitChunkIndex Y1
+Name: ChunkIndexY1
+Type: Integer
+Value: 0
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[58] Each: BuildPlan Y1
+Select an output from previous steps: createArray(json(concat('{"vendor":"NoAssign","len":', string(length(body('FilterY1_NoAssign'))), '}')), json(concat('{"vendor":"BDT","len":', string(length(body('FilterY1_BDT'))), '}')), json(concat('{"vendor":"Other","len":', string(length(body('FilterY1_Other'))), '}')), json(concat('{"vendor":"UNI","len":', string(length(body('FilterY1_UNI'))), '}')), json(concat('{"vendor":"WW","len":', string(length(body('FilterY1_WW'))), '}')), json(concat('{"vendor":"NGTrue","len":', string(length(body('FilterY1_NGTrue'))), '}')), json(concat('{"vendor":"NGCDC","len":', string(length(body('FilterY1_NGCDC'))), '}')), json(concat('{"vendor":"BBTEC","len":', string(length(body('FilterY1_BBTEC'))), '}')))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(58.1) Each: InnerLoop Y1: Select an output from previous steps: range(0, if(equals(items('BuildPlan_Y1')?['len'], 0), 1, add(div(sub(items('BuildPlan_Y1')?['len'], 1), 1000), 1)))
+(1) AppendPlanItem Y1
+Name: planArrayY1
+Value: {
+  "vendor": @{items('BuildPlan_Y1')?['vendor']},
+  "skip": @{mul(item(), 1000)},
+  "take": @{min(1000, sub(items('BuildPlan_Y1')?['len'], mul(item(), 1000)))}
+}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[59] Each: WriteLoop Y1
+Select an output from previous steps: variables('planArrayY1')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(1) ComposeRows Y1
+Inputs: if(equals(item()?['vendor'],'NoAssign'),string(take(skip(body('FilterY1_NoAssign'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'BDT'),string(take(skip(body('FilterY1_BDT'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'Other'),string(take(skip(body('FilterY1_Other'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'UNI'),string(take(skip(body('FilterY1_UNI'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'WW'),string(take(skip(body('FilterY1_WW'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'NGTrue'),string(take(skip(body('FilterY1_NGTrue'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'NGCDC'),string(take(skip(body('FilterY1_NGCDC'),item()?['skip']),item()?['take'])),string(take(skip(body('FilterY1_BBTEC'),item()?['skip']),item()?['take'])))))))))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2) RunScriptChunk Y1
+File: body('GetFileId2025')?['Id']
+Script: WriteVendorMatrix
+ScriptParameters/rowsJson: outputs('ComposeRows_Y1')
+ScriptParameters/chunkIndex: variables('ChunkIndexY1')
+ScriptParameters/isLastChunk: equals(variables('ChunkIndexY1'), sub(length(variables('planArrayY1')), 1))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(3) IncrementChunkIndex Y1
+Name: ChunkIndexY1
+Value: 1
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[60] InitPlanArray Y2
+Name: planArrayY2
+Type: Array
+Value: []
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[61] InitChunkIndex Y2
+Name: ChunkIndexY2
+Type: Integer
+Value: 0
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[62] Each: BuildPlan Y2
+Select an output from previous steps: createArray(json(concat('{"vendor":"NoAssign","len":', string(length(body('FilterY2_NoAssign'))), '}')), json(concat('{"vendor":"BDT","len":', string(length(body('FilterY2_BDT'))), '}')), json(concat('{"vendor":"Other","len":', string(length(body('FilterY2_Other'))), '}')), json(concat('{"vendor":"UNI","len":', string(length(body('FilterY2_UNI'))), '}')), json(concat('{"vendor":"WW","len":', string(length(body('FilterY2_WW'))), '}')), json(concat('{"vendor":"NGTrue","len":', string(length(body('FilterY2_NGTrue'))), '}')), json(concat('{"vendor":"NGCDC","len":', string(length(body('FilterY2_NGCDC'))), '}')), json(concat('{"vendor":"BBTEC","len":', string(length(body('FilterY2_BBTEC'))), '}')))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(62.1) Each: InnerLoop Y2: Select an output from previous steps: range(0, if(equals(items('BuildPlan_Y2')?['len'], 0), 1, add(div(sub(items('BuildPlan_Y2')?['len'], 1), 1000), 1)))
+(1) AppendPlanItem Y2
+Name: planArrayY2
+Value: {
+  "vendor": @{items('BuildPlan_Y2')?['vendor']},
+  "skip": @{mul(item(), 1000)},
+  "take": @{min(1000, sub(items('BuildPlan_Y2')?['len'], mul(item(), 1000)))}
+}
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[63] Each: WriteLoop Y2
+Select an output from previous steps: variables('planArrayY2')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(1) ComposeRows Y2:
+Inputs: if(equals(item()?['vendor'],'NoAssign'),string(take(skip(body('FilterY2_NoAssign'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'BDT'),string(take(skip(body('FilterY2_BDT'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'Other'),string(take(skip(body('FilterY2_Other'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'UNI'),string(take(skip(body('FilterY2_UNI'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'WW'),string(take(skip(body('FilterY2_WW'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'NGTrue'),string(take(skip(body('FilterY2_NGTrue'),item()?['skip']),item()?['take'])),if(equals(item()?['vendor'],'NGCDC'),string(take(skip(body('FilterY2_NGCDC'),item()?['skip']),item()?['take'])),string(take(skip(body('FilterY2_BBTEC'),item()?['skip']),item()?['take'])))))))))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2) RunScriptChunk Y2
+File: body('GetFileId2026')?['Id']
+Script: WriteVendorMatrix
+ScriptParameters/rowsJson: outputs('ComposeRows_Y2')
+ScriptParameters/chunkIndex: variables('ChunkIndexY2')
+ScriptParameters/isLastChunk: equals(variables('ChunkIndexY2'), sub(length(variables('planArrayY2')), 1))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(3) IncrementChunkIndex Y2
+Name: ChunkIndexY2
+Value: 1
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[64] Parallel
+(1) GetFileContent2025: File: body('GetFileId2025')?['Id']
+(1.1) ComposeFileB64 2025: Inputs: base64(body('GetFileContent2025'))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2) GetFileContent2026: File: body('GetFileId2026')?['Id']
+(2.1) ComposeFileB64 2026: Inputs: base64(body('GetFileContent2026'))
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[65] ComposeEmailHeader
+Inputs: <table cellpadding="0" cellspacing="0" width="900" align="left" style="background-color:#ffffff;font-family:'Segoe UI',Tahoma,Arial,sans-serif;font-size:14px;color:#222222;line-height:1.6;">
+<tr><td>
+
+  <div style="font-size:20px;font-weight:bold;color:#222222;">RENEWAL Export — Vendor Matrix</div>
+  <div style="font-size:14px;color:#444444;margin-top:6px;">Stage: On Process / Engagement / Payment</div>
+  <div style="font-size:13px;color:#444444;margin-top:2px;">@{concat('ช่วงวันหมดสัญญา: ', variables('InitDateFrom'), ' ถึง ', variables('InitDateTo'))}</div>
+  <p style="margin:6px 0 0 0;font-size:13px;color:#444444;">สามารถตรวจสอบรายละเอียดเพิ่มเติมได้ที่ <a href="https://app.powerbi.com/groups/me/reports/5f30824f-b676-4200-aadb-23a6577b127b" style="color:#0B5CAB;font-weight:bold;text-decoration:underline;">RENEWAL Dashboard</a></p>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[66] ComposeYearHeadingY1
+Inputs:   <div style="font-size:13px;font-weight:bold;color:#C00000;margin-top:14px;">@{concat(formatDateTime(variables('InitDateFrom'), 'yyyy'), ' (ข้อมูล ณ ', first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[LastData]'], ' น. (Power BI: RENEWAL Dashboard))')}</div>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[67] ComposeYearTableY1
+Inputs:   <table cellpadding="0" cellspacing="0" width="100%" style="margin-top:6px;border-collapse:collapse;font-size:12px;">
+    <thead><tr><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">GROUP</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">SUB_STAGE&nbsp;/&nbsp;RESPONSIBLE</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">No&nbsp;Assign</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">BD&T</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">Other</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">UNI</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">W&W</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">NG_True</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">NG_CDC</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">BBTEC</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">Total</th></tr></thead>
+    <tbody>@{outputs('ComposeMatrixHTML_Y1')}</tbody>
+  </table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[68] ComposeYearHeadingY2
+Inputs:   <table cellpadding="0" cellspacing="0" width="100%" border="0" style="margin-top:28px;border-collapse:collapse;">
+    <tr><td height="1" style="height:1px;line-height:0;font-size:0;background-color:#DDDDDD;">&nbsp;</td></tr>
+  </table>
+  <div style="font-size:13px;font-weight:bold;color:#C00000;margin-top:14px;">@{concat(formatDateTime(variables('InitDateTo'), 'yyyy'), ' (ข้อมูล ณ ', first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[LastData]'], ' น. (Power BI: RENEWAL Dashboard))')}</div>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[69] ComposeYearTableY2
+Inputs:   <table cellpadding="0" cellspacing="0" width="100%" style="margin-top:6px;border-collapse:collapse;font-size:12px;">
+    <thead><tr><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">GROUP</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">SUB_STAGE&nbsp;/&nbsp;RESPONSIBLE</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">No&nbsp;Assign</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">BD&T</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">Other</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">UNI</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">W&W</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">NG_True</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">NG_CDC</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">BBTEC</th><th valign="middle" style="padding:10px 6px;border:1px solid #DDDDDD;background:#C00000;color:#FFFFFF;font-weight:bold;text-align:center;vertical-align:middle;">Total</th></tr></thead>
+    <tbody>@{outputs('ComposeMatrixHTML_Y2')}</tbody>
+  </table>
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[70] Condition: CheckFileSize
+add(div(mul(length(outputs('ComposeFileB64_2025')),3),4), div(mul(length(outputs('ComposeFileB64_2026')),3),4)) is less or equal to 20971520
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[71] TRUE
+(1) SendEmailAttach
+Subject: concat('RENEWAL Vendor Matrix: ', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_Total]'])), ' tasks')
+Body: concat(outputs('ComposeEmailHeader'), outputs('ComposeYearHeadingY1'), outputs('ComposeYearTableY1'), outputs('ComposeYearHeadingY2'), outputs('ComposeYearTableY2'), '<p style="margin:14px 0 0 0;font-size:12px;color:#888888;"><b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ</p>', '</td></tr></table>')
+Name - 1: RENEWAL_Vendor_2025.xlsx
+Content - 1: outputs('ComposeFileB64_2025')
+Name - 2: RENEWAL_Vendor_2026.xlsx
+Content - 2: outputs('ComposeFileB64_2026')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+[72] FALSE
+(1) CreateShareLink2025: 
+File: body('GetFileId2025')?['Id']
+Link type: View
+Link scope: Organization
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2) Parallel
+(2.1) CreateShareLink2026
+File: body('GetFileId2026')?['Id']
+Link type: View
+Link scope: Organization
+(2.2) ComposeLinkY2
+Inputs: concat('<p style="margin:4px 0 10px 0;font-size:12.5px;color:#444444;">ปี ', formatDateTime(variables('InitDateTo'), 'yyyy'), ': <a href="', body('CreateShareLink2026')?['WebUrl'], '" style="color:#0B5CAB;font-weight:bold;text-decoration:underline;">เปิดไฟล์ RENEWAL_Vendor_2026.xlsx</a></p>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(2.3) ComposeLinkY1
+Inputs: concat('<p style="margin:4px 0 10px 0;font-size:12.5px;color:#444444;">ปี ', formatDateTime(variables('InitDateFrom'), 'yyyy'), ': <a href="', body('CreateShareLink2025')?['WebUrl'], '" style="color:#0B5CAB;font-weight:bold;text-decoration:underline;">เปิดไฟล์ RENEWAL_Vendor_2025.xlsx</a></p>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+(3) SendEmailLink
+Subject: concat('RENEWAL Vendor Matrix: ', string(int(first(body('Q_MATRIX_GRAND')?['firstTableRows'])?['[n_Total]'])), ' tasks')
+Body: concat(outputs('ComposeEmailHeader'), outputs('ComposeYearHeadingY1'), outputs('ComposeLinkY1'), outputs('ComposeYearTableY1'), outputs('ComposeYearHeadingY2'), outputs('ComposeLinkY2'), outputs('ComposeYearTableY2'), '<p style="margin:14px 0 0 0;font-size:12px;color:#888888;"><b>หมายเหตุ:</b> อีเมลนี้ถูกส่งโดยระบบอัตโนมัติ กรุณาอย่าตอบกลับ</p>', '</td></tr></table>')
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
